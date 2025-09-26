@@ -14,6 +14,7 @@ function LoadingScreen({ onLoadingComplete }) {
         'AUTUMN OS LOADING...',
         'Loading desktop assets...',
         'Preparing applications...',
+        'Loading fonts...',
         'Almost ready...',
         'please bare with me..',
         'oh im crying as im making this',
@@ -23,7 +24,7 @@ function LoadingScreen({ onLoadingComplete }) {
       try {
         // Load assets with progress tracking
         let loadedCount = 0;
-        const totalAssets = CRITICAL_ASSETS.length;
+        const totalAssets = CRITICAL_ASSETS.length + 1; // +1 for font loading
 
         // Update loading text periodically
         const textInterval = setInterval(() => {
@@ -54,6 +55,41 @@ function LoadingScreen({ onLoadingComplete }) {
           if (isMounted) {
             setProgress((loadedCount / totalAssets) * 100);
           }
+        }
+
+        // Wait for fonts to load
+        if (isMounted) {
+          setCurrentAsset('fonts');
+          setLoadingText('Loading fonts...');
+          
+          try {
+            // Wait for document fonts to be ready
+            if (document.fonts && document.fonts.ready) {
+              await document.fonts.ready;
+            } else {
+              // Fallback: wait a bit for fonts to load
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            // Additional check for custom font
+            const testElement = document.createElement('div');
+            testElement.style.fontFamily = 'zozafont, monospace';
+            testElement.style.fontSize = '12px';
+            testElement.style.visibility = 'hidden';
+            testElement.style.position = 'absolute';
+            testElement.textContent = 'Test';
+            document.body.appendChild(testElement);
+            
+            // Give a moment for font to apply
+            await new Promise(resolve => setTimeout(resolve, 200));
+            document.body.removeChild(testElement);
+            
+          } catch (error) {
+            console.warn('Font loading check failed:', error);
+          }
+          
+          loadedCount++;
+          setProgress((loadedCount / totalAssets) * 100);
         }
 
         clearInterval(textInterval);

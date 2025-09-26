@@ -62,6 +62,92 @@ export class AssetPreloader {
     return promise;
   }
 
+  // Preload font
+  preloadFont(fontFamily, src, descriptors = {}) {
+    const fontKey = `${fontFamily}-${src}`;
+    
+    if (this.loadedAssets.has(fontKey)) {
+      return Promise.resolve(this.loadedAssets.get(fontKey));
+    }
+
+    if (this.loadingPromises.has(fontKey)) {
+      return this.loadingPromises.get(fontKey);
+    }
+
+    const promise = new Promise((resolve, reject) => {
+      if ('FontFace' in window) {
+        const font = new FontFace(fontFamily, `url(${src})`, descriptors);
+        font.load().then(() => {
+          document.fonts.add(font);
+          this.loadedAssets.set(fontKey, font);
+          this.loadingPromises.delete(fontKey);
+          resolve(font);
+        }).catch((error) => {
+          this.loadingPromises.delete(fontKey);
+          reject(new Error(`Failed to load font: ${fontFamily} from ${src}`));
+        });
+      } else {
+        // Fallback for browsers without FontFace API
+        const style = document.createElement('style');
+        style.textContent = `
+          @font-face {
+            font-family: '${fontFamily}';
+            src: url('${src}');
+            ${descriptors.weight ? `font-weight: ${descriptors.weight};` : ''}
+            ${descriptors.style ? `font-style: ${descriptors.style};` : ''}
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Test if font loaded by measuring text width
+        const testText = 'BESbswy';
+        const testSize = '72px';
+        const fallbackFont = 'monospace';
+        
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        
+        context.font = `${testSize} ${fallbackFont}`;
+        const fallbackWidth = context.measureText(testText).width;
+        
+        context.font = `${testSize} ${fontFamily}, ${fallbackFont}`;
+        
+        const checkFont = () => {
+          const currentWidth = context.measureText(testText).width;
+          if (currentWidth !== fallbackWidth) {
+            this.loadedAssets.set(fontKey, true);
+            this.loadingPromises.delete(fontKey);
+            resolve(true);
+          } else {
+            setTimeout(checkFont, 50);
+          }
+        };
+        
+        // Start checking after a brief delay
+        setTimeout(checkFont, 100);
+        
+        // Timeout after 5 seconds
+        setTimeout(() => {
+          this.loadingPromises.delete(fontKey);
+          reject(new Error(`Font loading timeout: ${fontFamily}`));
+        }, 5000);
+      }
+    });
+
+    this.loadingPromises.set(fontKey, promise);
+    return promise;
+  }
+
+  // Wait for all fonts to be ready
+  waitForFonts() {
+    if (document.fonts && document.fonts.ready) {
+      return document.fonts.ready;
+    }
+    
+    // Fallback: just wait a bit
+    return new Promise(resolve => setTimeout(resolve, 500));
+  }
+
   // Preload multiple assets
   async preloadAssets(assets) {
     const promises = assets.map(asset => {
@@ -69,6 +155,8 @@ export class AssetPreloader {
         return this.preloadImage(asset.src);
       } else if (asset.type === 'audio') {
         return this.preloadAudio(asset.src);
+      } else if (asset.type === 'font') {
+        return this.preloadFont(asset.fontFamily, asset.src, asset.descriptors);
       }
       return Promise.resolve();
     });
@@ -88,6 +176,10 @@ export const globalAssetPreloader = new AssetPreloader();
 
 // Define your critical assets
 export const CRITICAL_ASSETS = [
+  // Fonts (load first for proper text rendering)
+  { type: 'font', fontFamily: 'zozafont', src: './public/zozafont.ttf' },
+  { type: 'font', fontFamily: 'Brick', src: './public/Brick.ttf' },
+  
   // Virtual Pet animations
   { type: 'image', src: './animations/walking_right.gif' },
   { type: 'image', src: './animations/walking_left.gif' },
