@@ -3,6 +3,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './NotebookApp.css';
 
+// Force CSS to load immediately
+const ensureFontsLoaded = () => {
+  // Create invisible element to force font loading
+  const fontTest = document.createElement('div');
+  fontTest.style.position = 'absolute';
+  fontTest.style.visibility = 'hidden';
+  fontTest.style.fontFamily = "'Crimson Text', 'Lora', Georgia, serif";
+  fontTest.textContent = 'Font loading test';
+  document.body.appendChild(fontTest);
+  
+  // Force reflow to ensure font is applied
+  fontTest.offsetHeight;
+  
+  // Clean up
+  document.body.removeChild(fontTest);
+};
+
 const NotebookApp = () => {
   const [notes, setNotes] = useState([]);
   const [currentNoteId, setCurrentNoteId] = useState(null);
@@ -27,6 +44,9 @@ const NotebookApp = () => {
 
   // setup app
   useEffect(() => {
+    // Ensure fonts are loaded immediately
+    ensureFontsLoaded();
+    
     loadNotesFromStorage();
     
     // use localStorage properly - check for browser support
