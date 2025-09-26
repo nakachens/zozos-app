@@ -18,17 +18,13 @@ const VirtualPet = ({ onPetClick }) => {
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   
-  // Enhanced animation management
+  // Add key for forcing re-render of images
   const [animationKey, setAnimationKey] = useState(0);
-  const [isAnimationReady, setIsAnimationReady] = useState(true);
-  const [pendingAnimation, setPendingAnimation] = useState(null);
   
   const petRef = useRef(null);
   const animationRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const contextMenuRef = useRef(null);
-  const imageRef = useRef(null);
-  const animationLoadTimeoutRef = useRef(null);
   
   const dragDialogues = [
     " waa not again~! ",
@@ -70,72 +66,10 @@ const VirtualPet = ({ onPetClick }) => {
     drag: './animations/drag.png' 
   };
 
-  // Enhanced animation source getter with cache busting
+  // Simplified animation source getter - remove caching complexity for now
   const getAnimationSrc = (animationType) => {
-    const baseSrc = animations[animationType];
-    // Add timestamp for GIFs to force fresh load and restart from frame 1
-    if (baseSrc && baseSrc.includes('.gif')) {
-      return `${baseSrc}?t=${Date.now()}&k=${animationKey}`;
-    }
-    return baseSrc;
+    return animations[animationType];
   };
-
-  // Enhanced animation change handler
-  const changeAnimation = useCallback((newAnimation, immediate = false) => {
-    console.log(`Attempting to change animation from ${currentAnimation} to ${newAnimation}`);
-    
-    if (currentAnimation === newAnimation && !immediate) {
-      console.log('Same animation, skipping change');
-      return;
-    }
-
-    // For immediate changes (like drag), don't wait
-    if (immediate || newAnimation === 'drag') {
-      setCurrentAnimation(newAnimation);
-      setAnimationKey(prev => prev + 1);
-      setIsAnimationReady(true);
-      return;
-    }
-
-    // For walking animations, ensure smooth transition
-    setIsAnimationReady(false);
-    setPendingAnimation(newAnimation);
-
-    // Clear any existing timeout
-    if (animationLoadTimeoutRef.current) {
-      clearTimeout(animationLoadTimeoutRef.current);
-    }
-
-    // Preload the new animation
-    const img = new Image();
-    img.onload = () => {
-      console.log(`Successfully preloaded ${newAnimation}`);
-      setCurrentAnimation(newAnimation);
-      setAnimationKey(prev => prev + 1);
-      setIsAnimationReady(true);
-      setPendingAnimation(null);
-    };
-    
-    img.onerror = () => {
-      console.warn(`Failed to preload ${newAnimation}, applying anyway`);
-      setCurrentAnimation(newAnimation);
-      setAnimationKey(prev => prev + 1);
-      setIsAnimationReady(true);
-      setPendingAnimation(null);
-    };
-
-    // Add cache busting to preload
-    img.src = `${animations[newAnimation]}?t=${Date.now()}`;
-
-    // Fallback timeout
-    animationLoadTimeoutRef.current = setTimeout(() => {
-      console.log('Animation load timeout, applying anyway');
-      setCurrentAnimation(newAnimation);
-      setAnimationKey(prev => prev + 1);
-      setIsAnimationReady(true);
-      setPendingAnimation(null);
-    }, 100); // Very short timeout since files should be cached
-  }, [currentAnimation, animationKey]);
 
   const walkingLoop = useCallback(() => {
     if (!isWalking || isDragging || isClicked) return;
@@ -143,32 +77,27 @@ const VirtualPet = ({ onPetClick }) => {
     setPosition(prev => {
       let newX = prev.x + (direction * WALK_SPEED);
       let newDirection = direction;
-      let newAnimation = currentAnimation;
 
       if (newX <= WALK_LEFT_BOUNDARY) {
         newX = WALK_LEFT_BOUNDARY;
         newDirection = 1;
-        newAnimation = 'walkRight';
+        setDirection(1);
+        setCurrentAnimation('walkRight');
       } else if (newX >= WALK_RIGHT_BOUNDARY) {
         newX = WALK_RIGHT_BOUNDARY;
         newDirection = -1;
-        newAnimation = 'walkLeft';
-      }
-
-      // Only change animation if direction actually changed
-      if (newDirection !== direction) {
-        setDirection(newDirection);
-        changeAnimation(newAnimation);
+        setDirection(-1);
+        setCurrentAnimation('walkLeft');
       }
 
       return { x: newX, y: prev.y };
     });
 
     animationRef.current = requestAnimationFrame(walkingLoop);
-  }, [direction, isWalking, isDragging, isClicked, currentAnimation, changeAnimation]);
+  }, [direction, isWalking, isDragging, isClicked]);
 
   useEffect(() => {
-    if (isWalking && !isDragging && !isClicked && isAnimationReady) {
+    if (isWalking && !isDragging && !isClicked) {
       animationRef.current = requestAnimationFrame(walkingLoop);
     }
     return () => {
@@ -176,7 +105,7 @@ const VirtualPet = ({ onPetClick }) => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [walkingLoop, isWalking, isDragging, isClicked, isAnimationReady]);
+  }, [walkingLoop, isWalking, isDragging, isClicked]);
 
   const handlePetRightClick = (e) => {
     e.preventDefault();
@@ -199,7 +128,7 @@ const VirtualPet = ({ onPetClick }) => {
     }
     
     setIsWalking(true);
-    changeAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+    setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
     setShowContextMenu(false);
   };
 
@@ -214,7 +143,7 @@ const VirtualPet = ({ onPetClick }) => {
     }
     
     setIsWalking(true);
-    changeAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+    setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
     setShowContextMenu(false);
   };
 
@@ -233,7 +162,7 @@ const VirtualPet = ({ onPetClick }) => {
     );
   };
 
-  // Enhanced click handler
+  // FIXED: Simplified click handler
   const handlePetClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -244,26 +173,34 @@ const VirtualPet = ({ onPetClick }) => {
 
     console.log('Pet clicked - starting click animation');
     
+    // IMMEDIATE state changes - no delays
     setIsClicked(true);
     setIsWalking(false);
     
+    // Set click animation immediately
     const clickAnimationType = direction === 1 ? 'clickRight' : 'clickLeft';
-    changeAnimation(clickAnimationType, true);
+    setCurrentAnimation(clickAnimationType);
+    
+    // Force re-render of the image to restart the GIF
+    setAnimationKey(prev => prev + 1);
     
     if (onPetClick) {
       onPetClick();
     }
 
+    // Clear any existing timeout
     if (clickTimeoutRef.current) {
       clearTimeout(clickTimeoutRef.current);
     }
 
+    // Resume walking after animation
     clickTimeoutRef.current = setTimeout(() => {
       console.log('Click animation finished, resuming walking...');
       setIsClicked(false);
       if (!isInBackground) {
         setIsWalking(true);
-        changeAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+        setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+        setAnimationKey(prev => prev + 1); // Force re-render for walking animation
       }
     }, 1500);
   };
@@ -302,7 +239,8 @@ const VirtualPet = ({ onPetClick }) => {
         hasPassedThreshold = true;
         setIsDragging(true);
         setIsWalking(false);
-        changeAnimation('drag', true);
+        setCurrentAnimation('drag');
+        setAnimationKey(prev => prev + 1);
         
         const randomDialogue = dragDialogues[Math.floor(Math.random() * dragDialogues.length)];
         setCurrentDragDialogue(randomDialogue);
@@ -346,7 +284,8 @@ const VirtualPet = ({ onPetClick }) => {
         }
         
         setIsWalking(true);
-        changeAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+        setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+        setAnimationKey(prev => prev + 1);
         
         if (hasMoved) {
           e.preventDefault();
@@ -374,7 +313,7 @@ const VirtualPet = ({ onPetClick }) => {
         document.body.style.cursor = 'default';
       }
     };
-  }, [isDragging, dragOffset, direction, mouseDownPosition, dragThreshold, isInBackground, isClicked, justFinishedDragging, changeAnimation]);
+  }, [isDragging, dragOffset, direction, mouseDownPosition, dragThreshold, isInBackground, isClicked, justFinishedDragging]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -389,7 +328,6 @@ const VirtualPet = ({ onPetClick }) => {
     }
   }, [showContextMenu]);
 
-  // Cleanup effect
   useEffect(() => {
     return () => {
       if (animationRef.current) {
@@ -397,9 +335,6 @@ const VirtualPet = ({ onPetClick }) => {
       }
       if (clickTimeoutRef.current) {
         clearTimeout(clickTimeoutRef.current);
-      }
-      if (animationLoadTimeoutRef.current) {
-        clearTimeout(animationLoadTimeoutRef.current);
       }
     };
   }, []);
@@ -422,32 +357,22 @@ const VirtualPet = ({ onPetClick }) => {
         onMouseDown={handleMouseDown}
         onDragStart={(e) => e.preventDefault()}
       >
-        {/* Enhanced image with proper loading */}
+        {/* FIXED: Simplified image with key-based re-rendering */}
         <img
-          ref={imageRef}
-          key={`${currentAnimation}-${animationKey}`}
+          key={`${currentAnimation}-${animationKey}`} // This forces React to create a new img element
           src={getAnimationSrc(currentAnimation)}
           alt="Haku"
           className="w-full h-full object-contain"
           style={{
             imageRendering: 'pixelated',
             pointerEvents: 'none',
-            userSelect: 'none',
-            opacity: pendingAnimation ? 0.7 : 1,
-            transition: 'opacity 0.1s ease'
+            userSelect: 'none'
           }}
           draggable={false}
-          onLoad={() => {
-            console.log(`Animation loaded: ${currentAnimation}`);
-            setIsAnimationReady(true);
-          }}
           onError={(e) => {
             console.warn(`Failed to load pet animation: ${e.target.src}`);
-            // Fallback without cache busting
-            const fallbackSrc = animations[currentAnimation] || './animations/walking_right.gif';
-            if (e.target.src !== fallbackSrc) {
-              e.target.src = fallbackSrc;
-            }
+            // Fallback to basic walking animation
+            e.target.src = './animations/walking_right.gif';
           }}
         />
         
