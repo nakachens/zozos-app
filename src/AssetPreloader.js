@@ -138,7 +138,7 @@ export class AssetPreloader {
     return promise;
   }
 
-  // Preload Google Fonts
+  // Force Google Fonts to load immediately (bypass font-display: swap)
   preloadGoogleFont(fontFamily, weights = ['400'], styles = ['normal']) {
     const fontKey = `google-${fontFamily}`;
     
@@ -151,54 +151,61 @@ export class AssetPreloader {
     }
 
     const promise = new Promise((resolve, reject) => {
-      // Force load each weight and style combination
+      // Wait for document.fonts to be available
+      if (!document.fonts) {
+        setTimeout(() => resolve(true), 500);
+        return;
+      }
+
       const loadPromises = [];
       
+      // Force load each weight and style combination
       weights.forEach(weight => {
         styles.forEach(style => {
-          if (document.fonts && document.fonts.load) {
-            const fontString = `${weight} 16px '${fontFamily}'`;
-            loadPromises.push(
-              document.fonts.load(fontString).catch(() => {
-                // Ignore individual font loading failures
-                console.warn(`Failed to load ${fontString}`);
-              })
-            );
-          }
+          const fontString = `${style === 'italic' ? 'italic ' : ''}${weight} 16px "${fontFamily}"`;
+          loadPromises.push(
+            document.fonts.load(fontString).then(() => {
+              // Create invisible element to force font application
+              const testEl = document.createElement('div');
+              testEl.style.position = 'fixed';
+              testEl.style.left = '-9999px';
+              testEl.style.top = '-9999px';
+              testEl.style.visibility = 'hidden';
+              testEl.style.fontFamily = `"${fontFamily}", serif`;
+              testEl.style.fontWeight = weight;
+              testEl.style.fontStyle = style;
+              testEl.style.fontSize = '16px';
+              testEl.textContent = 'Whispers of the Quill Test';
+              
+              document.body.appendChild(testEl);
+              
+              // Force multiple reflows to ensure font is applied
+              testEl.offsetHeight;
+              testEl.getBoundingClientRect();
+              
+              setTimeout(() => {
+                if (testEl.parentNode) {
+                  testEl.parentNode.removeChild(testEl);
+                }
+              }, 50);
+              
+              return true;
+            }).catch((error) => {
+              console.warn(`Failed to load ${fontString}:`, error);
+              return false;
+            })
+          );
         });
       });
-
-      // Create test elements to force font rendering
-      const testElement = document.createElement('div');
-      testElement.style.position = 'absolute';
-      testElement.style.left = '-9999px';
-      testElement.style.visibility = 'hidden';
-      testElement.style.fontFamily = `'${fontFamily}', serif`;
-      testElement.textContent = 'Whispers of the Quill';
-      testElement.id = `google-font-test-${fontFamily.replace(/\s+/g, '-')}`;
-      
-      document.body.appendChild(testElement);
-      
-      // Force layout calculation
-      testElement.getBoundingClientRect();
 
       Promise.all(loadPromises).then(() => {
         this.loadedAssets.set(fontKey, true);
         this.loadingPromises.delete(fontKey);
-        
-        // Clean up test element after a moment
-        setTimeout(() => {
-          const el = document.getElementById(testElement.id);
-          if (el) el.remove();
-        }, 100);
-        
         resolve(true);
-      }).catch(() => {
+      }).catch((error) => {
         this.loadingPromises.delete(fontKey);
-        // Clean up test element
-        const el = document.getElementById(testElement.id);
-        if (el) el.remove();
-        reject(new Error(`Failed to load Google Font: ${fontFamily}`));
+        console.warn(`Font loading failed for ${fontFamily}:`, error);
+        resolve(true); // Resolve anyway to not block loading
       });
     });
 

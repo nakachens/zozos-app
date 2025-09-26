@@ -7,7 +7,36 @@
     <title>zozOS</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <!-- CRITICAL: Load Google Fonts WITHOUT font-display=swap to prevent font delay -->
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=block" rel="stylesheet">
+    
+    <!-- Force immediate font loading with CSS -->
+    <style>
+      /* Force Google Fonts to load immediately */
+      @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=block');
+      
+      /* Force font preload with invisible text */
+      body::before {
+        content: 'Whispers of the Quill Dear diary magical entry';
+        font-family: 'Crimson Text', serif;
+        font-weight: 400;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        visibility: hidden;
+      }
+      
+      body::after {
+        content: 'Whispers of the Quill Dear diary magical entry';
+        font-family: 'Lora', serif;
+        font-weight: 400;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        visibility: hidden;
+      }
+    </style>
 
     <!-- Critical Virtual Pet Animations (highest priority) -->
     <link rel="preload" href="./animations/walking_right.gif" as="image">
@@ -205,12 +234,12 @@
       <div class="loading-screen">
         <div class="autumn-particles">
           <div class="particle" style="left: 10%; animation-duration: 3s; animation-delay: 0s;">🍂</div>
-          <div class="particle" style="left: 20%; animation-duration: 4s; animation-delay: 0.5s;">🍁</div>
+          <div class="particle" style="left: 20%; animation-duration: 4s; animation-delay: 0.5s;">🍃</div>
           <div class="particle" style="left: 30%; animation-duration: 3.5s; animation-delay: 1s;">🌰</div>
           <div class="particle" style="left: 40%; animation-duration: 4.2s; animation-delay: 1.5s;">🍃</div>
           <div class="particle" style="left: 50%; animation-duration: 3.8s; animation-delay: 2s;">🎋</div>
           <div class="particle" style="left: 60%; animation-duration: 4.5s; animation-delay: 0.2s;">🍂</div>
-          <div class="particle" style="left: 70%; animation-duration: 3.2s; animation-delay: 1.8s;">🍁</div>
+          <div class="particle" style="left: 70%; animation-duration: 3.2s; animation-delay: 1.8s;">🍃</div>
           <div class="particle" style="left: 80%; animation-duration: 4.8s; animation-delay: 0.8s;">🌾</div>
           <div class="particle" style="left: 90%; animation-duration: 3.6s; animation-delay: 2.3s;">🍃</div>
         </div>
