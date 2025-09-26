@@ -232,43 +232,18 @@ const VirtualPet = ({ onPetClick }) => {
     // using directional click animation based on current walking direction
     const clickAnimationType = direction === 1 ? 'clickRight' : 'clickLeft';
     
-    // Use optimized animation source
-    const animationSrc = getOptimizedAnimationSrc(clickAnimationType);
+    // Simple approach - just set the animation and let React handle the src change
+    setCurrentAnimation(clickAnimationType);
     
-    // Check if asset is preloaded
-    const isPreloaded = typeof window !== 'undefined' && 
-                       window.globalAssetPreloader && 
-                       window.globalAssetPreloader.loadedAssets.has(animations[clickAnimationType]);
-    
-    if (isPreloaded) {
-      // Asset is already loaded, use it immediately
-      setCurrentAnimation(clickAnimationType);
-      const timestamp = Date.now();
+    // Force reload the GIF by adding timestamp in the next tick
+    setTimeout(() => {
       const imgElement = petRef.current?.querySelector('img');
-      if (imgElement) {
+      if (imgElement && isClicked) {
+        const timestamp = Date.now();
+        const animationSrc = getOptimizedAnimationSrc(clickAnimationType);
         imgElement.src = `${animationSrc}?t=${timestamp}`;
       }
-    } else {
-      // Fallback: preload and then use the animation
-      const img = new Image();
-      img.onload = () => {
-        if (isClicked) { // Make sure we're still in click state
-          setCurrentAnimation(clickAnimationType);
-          
-          // force reload the GIF to prevent looping by adding timestamp
-          const timestamp = Date.now();
-          const imgElement = petRef.current?.querySelector('img');
-          if (imgElement) {
-            imgElement.src = `${animationSrc}?t=${timestamp}`;
-          }
-        }
-      };
-      img.onerror = () => {
-        console.warn(`Failed to load click animation: ${animationSrc}`);
-        setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
-      };
-      img.src = animationSrc;
-    }
+    }, 10);
 
     if (onPetClick) {
       onPetClick();
