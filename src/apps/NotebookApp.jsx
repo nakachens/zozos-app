@@ -17,13 +17,49 @@ const NotebookApp = () => {
   const [dialogMessage, setDialogMessage] = useState("It's okay, write it out... Let your heart speak through the ink. ✨");
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+  // NEW STATE: Track if dialogue has been shown this session
+  const [hasShownDialogThisSession, setHasShownDialogThisSession] = useState(false);
   
   const autoSaveTimeoutRef = useRef(null);
   const editorRef = useRef(null);
   const clickSoundRef = useRef(null); 
 
-  // setup app
+  // Font loading check
   useEffect(() => {
+    const checkFonts = async () => {
+      try {
+        // Wait for document fonts to be ready
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+        
+        // Additional check for custom fonts used in the app
+        const fontChecks = [
+          document.fonts.check('16px "Crimson Text"'),
+          document.fonts.check('16px "Lora"'),
+          document.fonts.check('16px "zozafont"'),
+          document.fonts.check('16px "Brick"')
+        ];
+        
+        // Wait a moment for fonts to settle
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        setFontsLoaded(true);
+      } catch (error) {
+        console.warn('Font loading check failed:', error);
+        // Fallback: wait a bit then proceed
+        setTimeout(() => setFontsLoaded(true), 500);
+      }
+    };
+
+    checkFonts();
+  }, []);
+
+  // setup app - wait for fonts first
+  useEffect(() => {
+    if (!fontsLoaded) return;
+    
     loadNotesFromStorage();
     
     // use localStorage properly - check for browser support
@@ -47,7 +83,7 @@ const NotebookApp = () => {
     if (clickSoundRef.current) {
       clickSoundRef.current.volume = 0.3;
     }
-  }, []);
+  }, [fontsLoaded]);
 
   // function to play click sound
   const playClickSound = () => {
@@ -60,11 +96,37 @@ const NotebookApp = () => {
   };
 
   useEffect(() => {
+    if (!fontsLoaded) return;
+    
     const appContainer = document.querySelector('.notebook-app-wrapper');
     if (appContainer) {
       appContainer.classList.toggle('dark-theme', theme === 'dark');
     }
-  }, [theme]);
+  }, [theme, fontsLoaded]);
+
+  // Show loading state while fonts are loading
+  if (!fontsLoaded) {
+    return (
+      <div className="notebook-app-wrapper">
+        <div className="app-container" style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          fontFamily: 'monospace'
+        }}>
+          <div style={{
+            textAlign: 'center',
+            color: '#8b4513',
+            padding: '20px'
+          }}>
+            <div style={{ fontSize: '24px', marginBottom: '10px' }}>✨</div>
+            <div style={{ fontSize: '14px' }}>Preparing your journal...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const updateDateDisplay = () => {
     const now = new Date();
@@ -129,7 +191,10 @@ const NotebookApp = () => {
     newNote();
     //adding a lil delay just to make everything sure
     setTimeout(() => {
-      showCharacterDialog();
+      // MODIFIED: Only show dialog if it hasn't been shown this session
+      if (!hasShownDialogThisSession) {
+        showCharacterDialog();
+      }
     }, 100);
   };
 
@@ -138,6 +203,8 @@ const NotebookApp = () => {
     setDialogStep(0);
     setDialogMessage("It's okay, write it out... Let your heart speak through the ink. ✨");
     setShowDialog(true);
+    // MODIFIED: Mark that dialog has been shown this session
+    setHasShownDialogThisSession(true);
   };
 
   const handleDialogChoice = (choice) => {
@@ -392,6 +459,8 @@ const NotebookApp = () => {
 
   // keyboard shortcuts
   useEffect(() => {
+    if (!fontsLoaded) return;
+    
     const handleKeyDown = (e) => {
       if (e.ctrlKey || e.metaKey) {
         switch(e.key) {
@@ -413,7 +482,7 @@ const NotebookApp = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentMainScreen, editorContent]);
+  }, [currentMainScreen, editorContent, fontsLoaded]);
 
   const stats = updateStats();
 
