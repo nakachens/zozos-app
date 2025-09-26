@@ -190,7 +190,6 @@ const NotebookApp = () => {
     newNote();
     //adding a lil delay just to make everything sure
     setTimeout(() => {
-      // Only show dialog if it hasn't been shown this session
       if (!hasShownDialogThisSession) {
         showCharacterDialog();
       }
@@ -202,7 +201,6 @@ const NotebookApp = () => {
     setDialogStep(0);
     setDialogMessage("It's okay, write it out... Let your heart speak through the ink. ✨");
     setShowDialog(true);
-    // Mark that dialog has been shown this session
     setHasShownDialogThisSession(true);
   };
 
