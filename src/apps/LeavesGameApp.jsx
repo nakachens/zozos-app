@@ -1,3 +1,4 @@
+
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
@@ -26,6 +27,10 @@ const FallingLeavesGame = () => {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [prevVolume, setPrevVolume] = useState(0.5); 
+
+  // Add preloading state
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [preloadedImages, setPreloadedImages] = useState({});
   
   const gameLoopRef = useRef();
   const leafIdCounter = useRef(0);
@@ -384,6 +389,62 @@ const FallingLeavesGame = () => {
     }
   }, [gameState]);
 
+  // Enhanced image preloading effect
+  useEffect(() => {
+    const preloadImages = async () => {
+      const imagesToLoad = [
+        { key: 'basket', src: basketImg },
+        { key: 'leaf1', src: leaf1Img },
+        { key: 'leaf2', src: leaf2Img },
+        { key: 'leaf3', src: leaf3Img }
+      ];
+
+      const imagePromises = imagesToLoad.map(({ key, src }) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => {
+            console.log(`Loaded game image: ${key}`);
+            resolve({ key, img, src });
+          };
+          img.onerror = () => {
+            console.warn(`Failed to load game image: ${key}`);
+            reject(new Error(`Failed to load ${key}`));
+          };
+          img.src = src;
+        });
+      });
+
+      try {
+        const loadedImagesArray = await Promise.all(imagePromises);
+        const imageMap = {};
+        loadedImagesArray.forEach(({ key, img, src }) => {
+          imageMap[key] = { img, src };
+        });
+        
+        setPreloadedImages(imageMap);
+        setImagesLoaded(true);
+        console.log('All game images preloaded successfully');
+      } catch (error) {
+        console.warn('Some game images failed to preload:', error);
+        setImagesLoaded(true);
+      }
+    };
+
+    preloadImages();
+  }, []);
+
+  // Get preloaded image source
+  const getImageSrc = (key) => {
+    return preloadedImages[key]?.src || leafImages[0]; // fallback
+  };
+
+  // Get random leaf image
+  const getRandomLeafImage = () => {
+    const leafKeys = ['leaf1', 'leaf2', 'leaf3'];
+    const randomKey = leafKeys[Math.floor(Math.random() * leafKeys.length)];
+    return getImageSrc(randomKey);
+  };
+
   // sound effects
   const playCatchSound = () => {
     if (catchAudioRef.current) {
@@ -401,6 +462,8 @@ const FallingLeavesGame = () => {
 
   // leaf spawning logic
   const createLeaf = useCallback(() => {
+    if (!imagesLoaded) return null;
+    
     let newX;
     let canSpawn = false;
     let attempts = 0;
@@ -436,13 +499,13 @@ const FallingLeavesGame = () => {
       id: leafIdCounter.current++,
       x: newX,
       y: -LEAF_SIZE,
-      image: leafImages[Math.floor(Math.random() * leafImages.length)],
+      image: getRandomLeafImage(), // Use preloaded image
       rotation: Math.random() * 360,
       rotationSpeed: (Math.random() - 0.5) * 2,
     };
     
     return newLeaf;
-  }, [leafImages]);
+  }, [imagesLoaded]);
 
   // keybro controls
   useEffect(() => {
@@ -473,7 +536,7 @@ const FallingLeavesGame = () => {
 
   // game animation
   useEffect(() => {
-    if (gameState !== 'playing') {
+    if (gameState !== 'playing' || !imagesLoaded) {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
         animationFrameId.current = null;
@@ -602,7 +665,7 @@ const FallingLeavesGame = () => {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [gameState, createLeaf, leaves.length]);
+  }, [gameState, createLeaf, leaves.length, imagesLoaded]);
 
   // saving high score
   const saveHighScore = useCallback(() => {
@@ -613,7 +676,10 @@ const FallingLeavesGame = () => {
   }, [score, highScore]);
 
   const startGame = () => {
+    if (!imagesLoaded) return; // Don't start if images aren't loaded
+    
     playClickSound();
+
     setGameState('playing');
     setScore(0);
     setLeaves([]);
@@ -683,7 +749,6 @@ const FallingLeavesGame = () => {
     e.target.style.boxShadow = 'none';
     e.target.style.borderColor = '#f5deb3 #8b4513 #8b4513 #f5deb3';
   };
-
   // vlume controls
   const VolumeControl = () => (
     <div style={styles.volumeContainer}>
@@ -742,7 +807,31 @@ const FallingLeavesGame = () => {
       </div>
     </div>
   );
-
+  // Show loading screen if images aren't loaded yet
+  if (!imagesLoaded) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.gameArea}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(145deg, #f5deb3, #deb887)',
+            color: '#8b4513',
+            fontSize: '14px',
+            fontFamily: 'Courier New, monospace'
+          }}>
+            Loading game assets... 🍂
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div style={styles.container}>
       <div style={styles.gameArea}>
@@ -753,10 +842,11 @@ const FallingLeavesGame = () => {
               <h1 style={styles.title}>🍂 FALLING LEAVES 🍂</h1>
               <div style={styles.buttonContainer}>
                 <button
-                  onClick={startGame}
-                  style={{...styles.button, ...styles.playButton}}
-                  onMouseEnter={handleButtonMouseEnter}
-                  onMouseLeave={handleButtonMouseLeave}
+                onClick={startGame}
+                style={{...styles.button, ...styles.playButton}}
+                onMouseEnter={handleButtonMouseEnter}
+                onMouseLeave={handleButtonMouseLeave}
+                disabled={!imagesLoaded}
                 >
                   🎮 PLAY GAME
                 </button>

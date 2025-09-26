@@ -15,7 +15,10 @@ function LoadingScreen({ onLoadingComplete }) {
         'Loading desktop assets...',
         'Preparing virtual pet...',
         'Setting up applications...',
-        'Almost ready...'
+        'Almost ready...',
+        'please bare with me...',
+        'i cried making this btw lol',
+        'im crying as im writing this btw lol'
       ];
 
       try {
@@ -86,7 +89,7 @@ function LoadingScreen({ onLoadingComplete }) {
 
   return (
     <div 
-      className="h-screen w-screen flex items-center justify-center"
+      className="h-screen w-screen flex items-center justify-center relative overflow-hidden"
       style={{
         background: 'linear-gradient(135deg, #492000ff 0%, #4b2310ff 100%)',
         fontFamily: 'monospace'
@@ -104,82 +107,130 @@ function LoadingScreen({ onLoadingComplete }) {
               animationDelay: `${Math.random() * 3}s`,
               animationDuration: `${2 + Math.random() * 2}s`,
               background: ['#ff8c42', '#ff6b35', '#ffa500', '#daa520'][Math.floor(Math.random() * 4)],
-              opacity: 0.6 + Math.random() * 0.4
+              opacity: 0.4 + Math.random() * 0.6
             }}
           />
         ))}
       </div>
       
-      <div className="text-center relative z-10 max-w-md px-6">
-        {/* Logo */}
-        <div className="text-6xl font-bold mb-8"
+      <div className="text-center relative z-10 max-w-lg">
+        {/* Main logo */}
+        <div className="mb-12"
              style={{
                fontFamily: 'zozafont, monospace', 
+               fontSize: '4rem',
+               fontWeight: 'bold',
                color: "wheat",
                textShadow: `
                  2px 2px 0px #783e00ff,
                  4px 4px 0px #783e00ff,
-                 6px 6px 0px #783e00ff
+                 6px 6px 0px #783e00ff,
+                 8px 8px 0px #783e00ff,
+                 10px 10px 20px #783e00ff
                `,
-               letterSpacing: '0.1em'
+               letterSpacing: '0.1em',
+               lineHeight: '1'
              }}>
           zozOS
         </div>
 
-        {/* Loading text */}
-        <div className="text-xl font-bold mb-6"
+        {/* System info */}
+        <div className="mb-16 border-4 p-6"
              style={{
-               color: '#d2bfb0ff',
-               textShadow: '2px 2px 0px #a0522d',
-               letterSpacing: '0.1em'
+               background: 'linear-gradient(145deg, #d7ccc8, #bcaaa4)',
+               borderColor: '#efebe9 #3e2723 #3e2723 #efebe9',
+               borderStyle: 'solid',
+               fontFamily: 'Courier New, monospace'
              }}>
-          {loadingText}
+          <div className="text-center mb-4">
+            <div className="font-bold text-lg mb-2" style={{ color: '#3e2723' }}>
+              SYSTEM LOADING
+            </div>
+            <div className="text-sm" style={{ color: '#5d4037' }}>
+              AUTUMN OS v2.1 - SEPTEMBER EDITION
+            </div>
+          </div>
+
+          {/* Loading status */}
+          <div className="mb-6">
+            <div className="text-base font-bold mb-3"
+                 style={{
+                   color: '#3e2723',
+                   letterSpacing: '0.05em'
+                 }}>
+              {loadingText}
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full h-6 border-2 mb-3"
+                 style={{ 
+                   background: '#efebe9',
+                   borderColor: '#3e2723 #efebe9 #efebe9 #3e2723',
+                   borderStyle: 'solid'
+                 }}>
+              <div 
+                className="h-full transition-all duration-300 ease-out"
+                style={{ 
+                  width: `${Math.max(progress, 2)}%`,
+                  background: 'linear-gradient(90deg, #8d6e63 0%, #6d4c41 50%, #5d4037 100%)',
+                  animation: progress > 0 ? 'none' : 'pulse 2s infinite'
+                }}
+              />
+            </div>
+
+            {/* Progress info */}
+            <div className="flex justify-between text-sm"
+                 style={{ color: '#5d4037' }}>
+              <span>PROGRESS: {Math.round(progress)}%</span>
+              <span>PLEASE WAIT...</span>
+            </div>
+          </div>
+
+          {/* Current asset info */}
+          {currentAsset && (
+            <div className="border-t-2 pt-4"
+                 style={{ borderColor: '#6d4c41' }}>
+              <div className="text-xs"
+                   style={{ 
+                     color: '#6d4c41',
+                     fontFamily: 'monospace'
+                   }}>
+                LOADING: {currentAsset}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Progress bar */}
-        <div className="w-full bg-amber-900 rounded-full h-6 mb-4 border-2"
-             style={{ 
-               borderColor: '#d7ccc8 #3e2723 #3e2723 #d7ccc8',
-               borderStyle: 'solid'
-             }}>
-          <div 
-            className="bg-gradient-to-r from-orange-400 to-amber-300 h-full rounded-full transition-all duration-300 ease-out"
-            style={{ 
-              width: `${Math.max(progress, 5)}%`,
-              animation: progress > 0 ? 'none' : 'pulse 2s infinite'
-            }}
-          />
-        </div>
+        {/* Bottom info */}
+        <div className="space-y-4 text-center">
+          {/* System tip */}
+          <div className="border-2 p-4"
+               style={{
+                 background: 'linear-gradient(145deg, #efebe9, #d7ccc8)',
+                 borderColor: '#3e2723 #efebe9 #efebe9 #3e2723',
+                 borderStyle: 'solid'
+               }}>
+            <div className="text-xs font-bold mb-2" style={{ color: '#3e2723' }}>
+              SYSTEM TIP:
+            </div>
+            <div className="text-xs leading-relaxed"
+                 style={{ 
+                   color: '#5d4037',
+                   fontFamily: 'monospace'
+                 }}>
+              Right-click the pet to move it behind or in front of windows!
+            </div>
+          </div>
 
-        {/* Progress percentage */}
-        <div className="text-lg font-bold mb-4"
-             style={{
-               color: '#d2c4baff',
-               fontFamily: 'monospace'
-             }}>
-          {Math.round(progress)}%
-        </div>
-
-        {/* Current asset */}
-        {currentAsset && (
-          <div className="text-sm opacity-70"
+          {/* Copyright */}
+          <div className="text-xs opacity-70"
                style={{ 
                  color: '#9c9c9cff',
-                 fontFamily: 'monospace'
+                 fontFamily: 'monospace',
+                 letterSpacing: '0.1em'
                }}>
-            Loading: {currentAsset}
+            © 2025 ZOZA SYSTEMS
           </div>
-        )}
-
-        {/* Loading tip */}
-        <div className="mt-8 text-xs opacity-60 italic"
-             style={{ 
-               color: '#9c9c9cff',
-               fontFamily: 'monospace',
-               maxWidth: '300px',
-               lineHeight: '1.4'
-             }}>
-          Tip: Right-click the pet to move it behind or in front of windows!
         </div>
       </div>
     </div>
