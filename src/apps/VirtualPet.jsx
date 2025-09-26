@@ -1,13 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// Import the asset preloader if you create it, otherwise remove this line
-// import { globalAssetPreloader } from './AssetPreloader';
-
 const VirtualPet = ({ onPetClick }) => {
-  // Fix 1: Spawn above taskbar (48px + margin = 120px from bottom)
-  const [position, setPosition] = useState({ x: 200, y: window.innerHeight - 420 }); // Spawn above taskbar
-  const [direction, setDirection] = useState(1); // 1 for right, -1 for left
+  const [position, setPosition] = useState({ x: 200, y: window.innerHeight - 420 });
+  const [direction, setDirection] = useState(1);
   const [currentAnimation, setCurrentAnimation] = useState('walkRight');
   const [isClicked, setIsClicked] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -18,17 +14,18 @@ const VirtualPet = ({ onPetClick }) => {
   
   const [mouseDownPosition, setMouseDownPosition] = useState(null);
   const [dragThreshold] = useState(5); 
-  // layer management 
   const [isInBackground, setIsInBackground] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+  
+  // Add key for forcing re-render of images
+  const [animationKey, setAnimationKey] = useState(0);
   
   const petRef = useRef(null);
   const animationRef = useRef(null);
   const clickTimeoutRef = useRef(null);
   const contextMenuRef = useRef(null);
   
-  // cute drag dialogues
   const dragDialogues = [
     " waa not again~! ",
     " w-what are you trying to do!! ",
@@ -49,23 +46,18 @@ const VirtualPet = ({ onPetClick }) => {
   const CLICKABLE_OFFSET_X = (PET_WIDTH - CLICKABLE_WIDTH) / 2; 
   const CLICKABLE_OFFSET_Y = (PET_HEIGHT - CLICKABLE_HEIGHT) / 2; 
   
-  // separate boundaries for walking vs dragging
-  // walking boundaries (away from desktop icons and above taskbar)
-  const WALK_LEFT_BOUNDARY = 50; // away from desktop icons
-  const WALK_RIGHT_BOUNDARY = window.innerWidth - PET_WIDTH - 50; // space from right edge
-  const WALK_TOP_BOUNDARY = 250; // from desktop widgets area
-  const WALK_BOTTOM_BOUNDARY = window.innerHeight - 250; // above taskbar
+  const WALK_LEFT_BOUNDARY = 50;
+  const WALK_RIGHT_BOUNDARY = window.innerWidth - PET_WIDTH - 50;
+  const WALK_TOP_BOUNDARY = 250;
+  const WALK_BOTTOM_BOUNDARY = window.innerHeight - 250;
   
-  // dragging boundaries (nearly fullscreen)
   const DRAG_LEFT_BOUNDARY = 20; 
   const DRAG_RIGHT_BOUNDARY = window.innerWidth - PET_WIDTH - 20; 
-  const DRAG_TOP_BOUNDARY = 10; // small edge margin
+  const DRAG_TOP_BOUNDARY = 10;
   const DRAG_BOTTOM_BOUNDARY = window.innerHeight - 250;
   
-  // walking speed
   const WALK_SPEED = 1;
 
-  // animation sources with optimized loading
   const animations = {
     walkRight: './animations/walking_right.gif',
     walkLeft: './animations/walking_left.gif',
@@ -74,36 +66,11 @@ const VirtualPet = ({ onPetClick }) => {
     drag: './animations/drag.png' 
   };
 
-  // Optimized animation source getter
-  const getOptimizedAnimationSrc = (animationType) => {
-    const src = animations[animationType];
-    
-    // Check if we have the global asset preloader available
-    if (typeof window !== 'undefined' && window.globalAssetPreloader) {
-      const preloadedAsset = window.globalAssetPreloader.loadedAssets.get(src);
-      if (preloadedAsset && preloadedAsset instanceof Image) {
-        return preloadedAsset.src;
-      }
-    }
-    
-    return src;
+  // Simplified animation source getter - remove caching complexity for now
+  const getAnimationSrc = (animationType) => {
+    return animations[animationType];
   };
 
-  // Preload animation function
-  const preloadAnimation = (animationType) => {
-    const src = animations[animationType];
-    if (typeof window !== 'undefined' && window.globalAssetPreloader) {
-      window.globalAssetPreloader.preloadImage(src).catch(error => {
-        console.warn(`Failed to preload animation ${src}:`, error);
-      });
-    } else {
-      // Fallback preloading without asset manager
-      const img = new Image();
-      img.src = src;
-    }
-  };
-
-  // animation loop
   const walkingLoop = useCallback(() => {
     if (!isWalking || isDragging || isClicked) return;
 
@@ -111,7 +78,6 @@ const VirtualPet = ({ onPetClick }) => {
       let newX = prev.x + (direction * WALK_SPEED);
       let newDirection = direction;
 
-      // walking boundaries and reverse direction
       if (newX <= WALK_LEFT_BOUNDARY) {
         newX = WALK_LEFT_BOUNDARY;
         newDirection = 1;
@@ -130,7 +96,6 @@ const VirtualPet = ({ onPetClick }) => {
     animationRef.current = requestAnimationFrame(walkingLoop);
   }, [direction, isWalking, isDragging, isClicked]);
 
-  // start walking animation
   useEffect(() => {
     if (isWalking && !isDragging && !isClicked) {
       animationRef.current = requestAnimationFrame(walkingLoop);
@@ -142,28 +107,16 @@ const VirtualPet = ({ onPetClick }) => {
     };
   }, [walkingLoop, isWalking, isDragging, isClicked]);
 
-  // Preload likely next animations on mount and state changes
-  useEffect(() => {
-    // Preload all animations on component mount
-    Object.keys(animations).forEach(animationType => {
-      preloadAnimation(animationType);
-    });
-  }, []);
-
-  // handle right click to show context menu (changed from left click)
   const handlePetRightClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // dont trigger context menu if dragging
     if (isDragging) return;
 
-    // show context menu
     setContextMenuPosition({ x: e.clientX, y: e.clientY });
     setShowContextMenu(true);
   };
 
-  // context menu actions with proper state management
   const handleMoveToBack = () => {
     console.log('Moving to back...');
     
@@ -194,7 +147,6 @@ const VirtualPet = ({ onPetClick }) => {
     setShowContextMenu(false);
   };
 
-  // click detection with position checking and drag threshold
   const isClickInPetCenter = (clientX, clientY) => {
     if (!petRef.current) return false;
     
@@ -202,7 +154,6 @@ const VirtualPet = ({ onPetClick }) => {
     const relativeX = clientX - rect.left;
     const relativeY = clientY - rect.top;
     
-    // check if click is within the centered clickable area
     return (
       relativeX >= CLICKABLE_OFFSET_X &&
       relativeX <= CLICKABLE_OFFSET_X + CLICKABLE_WIDTH &&
@@ -211,64 +162,53 @@ const VirtualPet = ({ onPetClick }) => {
     );
   };
 
+  // FIXED: Simplified click handler
   const handlePetClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // in background mode, don't do click animations, just allow dragging
     if (isInBackground) return;
-
-    // don't trigger click if already clicked, dragging, or just finished dragging
     if (isClicked || isDragging || justFinishedDragging) return;
-
-    //  trigger click animation if clicking in the pet's center area
     if (!isClickInPetCenter(e.clientX, e.clientY)) return;
 
-    console.log('cutie was clicked in center area!');
+    console.log('Pet clicked - starting click animation');
     
+    // IMMEDIATE state changes - no delays
     setIsClicked(true);
     setIsWalking(false);
     
-    // using directional click animation based on current walking direction
+    // Set click animation immediately
     const clickAnimationType = direction === 1 ? 'clickRight' : 'clickLeft';
-    
-    // Simple approach - just set the animation and let React handle the src change
     setCurrentAnimation(clickAnimationType);
     
-    // Force reload the GIF by adding timestamp in the next tick
-    setTimeout(() => {
-      const imgElement = petRef.current?.querySelector('img');
-      if (imgElement && isClicked) {
-        const timestamp = Date.now();
-        const animationSrc = getOptimizedAnimationSrc(clickAnimationType);
-        imgElement.src = `${animationSrc}?t=${timestamp}`;
-      }
-    }, 10);
-
+    // Force re-render of the image to restart the GIF
+    setAnimationKey(prev => prev + 1);
+    
     if (onPetClick) {
       onPetClick();
     }
 
-    // shorter timeout and ensure animation plays only once
+    // Clear any existing timeout
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+    }
+
+    // Resume walking after animation
     clickTimeoutRef.current = setTimeout(() => {
       console.log('Click animation finished, resuming walking...');
       setIsClicked(false);
       if (!isInBackground) {
         setIsWalking(true);
         setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+        setAnimationKey(prev => prev + 1); // Force re-render for walking animation
       }
-    }, 1500); 
+    }, 1500);
   };
 
-  // mouse down handler with position tracking
   const handleMouseDown = (e) => {
-    // no dragging during click animation (unless in background where clicks are disabled)
     if (isClicked && !isInBackground) return;
 
-    // Store mouse down position for drag threshold calculation
     setMouseDownPosition({ x: e.clientX, y: e.clientY });
-
-    console.log('Mouse down detected...');
     
     const rect = petRef.current.getBoundingClientRect();
     setDragOffset({
@@ -276,17 +216,14 @@ const VirtualPet = ({ onPetClick }) => {
       y: e.clientY - rect.top
     });
 
-    // clear any pending click timeout
     if (clickTimeoutRef.current) {
       clearTimeout(clickTimeoutRef.current);
       clickTimeoutRef.current = null;
     }
 
-    // hide context menu if mouse down starts
     setShowContextMenu(false);
   };
 
-  // improved dragging with threshold detection
   useEffect(() => {
     let hasMoved = false;
     let hasPassedThreshold = false;
@@ -294,19 +231,17 @@ const VirtualPet = ({ onPetClick }) => {
     const handleMouseMove = (e) => {
       if (!mouseDownPosition) return;
 
-      // calculate distance from initial mouse down position
       const deltaX = Math.abs(e.clientX - mouseDownPosition.x);
       const deltaY = Math.abs(e.clientY - mouseDownPosition.y);
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-      // only start dragging if we've moved beyond the threshold
       if (distance > dragThreshold && !hasPassedThreshold) {
         hasPassedThreshold = true;
         setIsDragging(true);
         setIsWalking(false);
         setCurrentAnimation('drag');
+        setAnimationKey(prev => prev + 1);
         
-        // random dialogue when dragging starts
         const randomDialogue = dragDialogues[Math.floor(Math.random() * dragDialogues.length)];
         setCurrentDragDialogue(randomDialogue);
         
@@ -316,7 +251,6 @@ const VirtualPet = ({ onPetClick }) => {
       if (isDragging || hasPassedThreshold) {
         hasMoved = true;
 
-        // different boundaries for dragging
         const leftBoundary = DRAG_LEFT_BOUNDARY;
         const rightBoundary = DRAG_RIGHT_BOUNDARY;
         const topBoundary = DRAG_TOP_BOUNDARY;
@@ -342,7 +276,6 @@ const VirtualPet = ({ onPetClick }) => {
         console.log('Drag ended, resuming walking...');
         setIsDragging(false);
         
-        // set flag that we just finished dragging to prevent immediate click
         if (hasMoved) {
           setJustFinishedDragging(true);
           setTimeout(() => {
@@ -352,19 +285,18 @@ const VirtualPet = ({ onPetClick }) => {
         
         setIsWalking(true);
         setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+        setAnimationKey(prev => prev + 1);
         
         if (hasMoved) {
           e.preventDefault();
           e.stopPropagation();
         }
       } else if (mouseDownPosition && !hasMoved) {
-        // trigger click if we didn't drag AND mouse is still in pet center
         if (isClickInPetCenter(e.clientX, e.clientY)) {
           handlePetClick(e);
         }
       }
       
-      // reset mouse tracking
       setMouseDownPosition(null);
     };
 
@@ -383,7 +315,6 @@ const VirtualPet = ({ onPetClick }) => {
     };
   }, [isDragging, dragOffset, direction, mouseDownPosition, dragThreshold, isInBackground, isClicked, justFinishedDragging]);
 
-  // close context menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (contextMenuRef.current && !contextMenuRef.current.contains(e.target)) {
@@ -426,12 +357,10 @@ const VirtualPet = ({ onPetClick }) => {
         onMouseDown={handleMouseDown}
         onDragStart={(e) => e.preventDefault()}
       >
-        {/* image with optimized animation control */}
+        {/* FIXED: Simplified image with key-based re-rendering */}
         <img
-          src={currentAnimation === 'clickRight' || currentAnimation === 'clickLeft' 
-            ? `${getOptimizedAnimationSrc(currentAnimation)}?t=${Date.now()}` // Force reload for click animations
-            : getOptimizedAnimationSrc(currentAnimation)
-          }
+          key={`${currentAnimation}-${animationKey}`} // This forces React to create a new img element
+          src={getAnimationSrc(currentAnimation)}
           alt="Haku"
           className="w-full h-full object-contain"
           style={{
@@ -440,17 +369,6 @@ const VirtualPet = ({ onPetClick }) => {
             userSelect: 'none'
           }}
           draggable={false}
-          onLoad={(e) => {
-            // Pre-cache the next likely animations when current animation loads
-            if (currentAnimation.includes('walk')) {
-              const nextClickAnim = direction === 1 ? 'clickRight' : 'clickLeft';
-              preloadAnimation(nextClickAnim);
-            }
-            
-            e.target.onerror = () => {
-              console.warn(`Failed to load pet animation: ${e.target.src}`);
-            };
-          }}
           onError={(e) => {
             console.warn(`Failed to load pet animation: ${e.target.src}`);
             // Fallback to basic walking animation
@@ -458,8 +376,7 @@ const VirtualPet = ({ onPetClick }) => {
           }}
         />
         
-        
-        {/* click animation bubble */}
+        {/* Click animation bubble */}
         {isClicked && !isInBackground && (
           <div
             className="absolute left-1/2 transform -translate-x-1/2 bg-amber-100 border-2 px-2 py-1 rounded-lg text-xs font-bold"
@@ -476,7 +393,7 @@ const VirtualPet = ({ onPetClick }) => {
           </div>
         )}
 
-        {/* drag animation bubble */}
+        {/* Drag animation bubble */}
         {isDragging && (
           <div
             className="absolute left-1/2 transform -translate-x-1/2 bg-orange-100 border-2 px-4 py-2 rounded-lg text-xs font-bold animate-bounce"
@@ -495,7 +412,7 @@ const VirtualPet = ({ onPetClick }) => {
         )}
       </div>
 
-      {/* context */}
+      {/* Context menu */}
       {showContextMenu && (
         <div
           ref={contextMenuRef}
