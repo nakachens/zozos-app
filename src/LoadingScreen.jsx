@@ -3,7 +3,7 @@ import { globalAssetPreloader, CRITICAL_ASSETS } from './AssetPreloader';
 
 function LoadingScreen({ onLoadingComplete }) {
   const [progress, setProgress] = useState(0);
-  const [loadingText, setLoadingText] = useState('Initializing zozOS...');
+  const [loadingText, setLoadingText] = useState('AUTUMN OS LOADING...');
   const [currentAsset, setCurrentAsset] = useState('');
 
   useEffect(() => {
@@ -11,11 +11,13 @@ function LoadingScreen({ onLoadingComplete }) {
 
     const loadAssets = async () => {
       const loadingTexts = [
-        'Initializing zozOS...',
+        'AUTUMN OS LOADING...',
         'Loading desktop assets...',
-        'Preparing virtual pet...',
-        'Setting up applications...',
-        'Almost ready...'
+        'Preparing applications...',
+        'Almost ready...',
+        'please bare with me..',
+        'oh im crying as im making this',
+        'pure pain..'
       ];
 
       try {
@@ -91,35 +93,18 @@ function LoadingScreen({ onLoadingComplete }) {
         background: 'linear-gradient(135deg, #8b4513 0%, #a0522d 100%)',
       }}
     >
-      {/* Background particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 2}s`,
-              background: ['#d7ccc8', '#bcaaa4', '#a1887f', '#8d6e63'][Math.floor(Math.random() * 4)],
-              opacity: 0.4 + Math.random() * 0.6
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="text-center">
+      <div className="text-center w-full max-w-md mx-auto px-6">
         {/* Loading status */}
-        <div className="text-amber-100 text-xl mb-8 font-mono">
+        <div className="text-amber-100 text-xl mb-12 font-mono tracking-wide">
           {loadingText}
         </div>
 
         {/* Progress bar */}
-        <div className="w-96 h-6 bg-amber-900 border-2 mb-6" 
+        <div className="w-full h-6 bg-amber-900 border-2 mb-8 mx-auto" 
              style={{ 
                borderColor: '#d7ccc8 #3e2723 #3e2723 #d7ccc8',
-               borderStyle: 'solid'
+               borderStyle: 'solid',
+               maxWidth: '320px'
              }}>
           <div 
             className="h-full bg-gradient-to-r from-orange-400 to-amber-300 transition-all duration-300 ease-out" 
@@ -130,26 +115,9 @@ function LoadingScreen({ onLoadingComplete }) {
           />
         </div>
 
-        {/* Progress percentage */}
-        <div className="text-amber-200 text-lg mb-4 font-mono">
-          {Math.round(progress)}%
-        </div>
-
-        {/* Current asset */}
-        {currentAsset && (
-          <div className="text-amber-200 text-sm mb-6 font-mono opacity-80">
-            Loading: {currentAsset}
-          </div>
-        )}
-
-        {/* Loading tip */}
-        <div className="text-amber-200 text-sm mt-8 font-mono">
-          Please wait...
-        </div>
-
-        {/* Tip section */}
-        <div className="mt-12 text-xs opacity-60 italic text-amber-300 font-mono max-w-md mx-auto leading-relaxed">
-          Tip: Right-click the pet to move it behind or in front of windows!
+        {/* Progress percentage and current asset in one line */}
+        <div className="text-amber-200 text-sm font-mono">
+          {Math.round(progress)}% {currentAsset && `• ${currentAsset}`}
         </div>
       </div>
     </div>
