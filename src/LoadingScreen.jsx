@@ -93,31 +93,26 @@ function LoadingScreen({ onLoadingComplete }) {
         background: 'linear-gradient(135deg, #8b4513 0%, #a0522d 100%)',
       }}
     >
-      <div className="text-center w-full max-w-md mx-auto px-6">
+      <div className="text-center">
         {/* Loading status */}
-        <div className="text-amber-100 text-xl mb-12 font-mono tracking-wide">
+        <div className="text-amber-100 text-xl mb-8 font-mono">
           {loadingText}
         </div>
 
-        {/* Progress bar */}
-        <div className="w-full h-6 bg-amber-900 border-2 mb-8 mx-auto" 
-             style={{ 
-               borderColor: '#d7ccc8 #3e2723 #3e2723 #d7ccc8',
-               borderStyle: 'solid',
-               maxWidth: '320px'
-             }}>
+        {/* Progress bar - matching the login screen style exactly */}
+        <div className="w-96 h-6 bg-amber-900 border-2" style={{ 
+          borderColor: '#d7ccc8 #3e2723 #3e2723 #d7ccc8',
+          borderStyle: 'solid'
+        }}>
           <div 
-            className="h-full bg-gradient-to-r from-orange-400 to-amber-300 transition-all duration-300 ease-out" 
-            style={{ 
-              width: `${Math.max(progress, 2)}%`,
-              animation: progress > 0 ? 'none' : 'pulse 2s infinite'
-            }}
+            className="h-full bg-gradient-to-r from-orange-400 to-amber-300 animate-pulse" 
+            style={{ width: `${Math.max(progress, 2)}%` }}
           />
         </div>
 
-        {/* Progress percentage and current asset in one line */}
-        <div className="text-amber-200 text-sm font-mono">
-          {Math.round(progress)}% {currentAsset && `• ${currentAsset}`}
+        {/* Progress text */}
+        <div className="text-amber-200 text-sm mt-6 font-mono">
+          {Math.round(progress)}%{currentAsset && ` • ${currentAsset}`}
         </div>
       </div>
     </div>
