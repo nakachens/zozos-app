@@ -3,52 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './NotebookApp.css';
 
-// Preload fonts synchronously before component renders
-const preloadFonts = () => {
-  if (document.fonts && document.fonts.load) {
-    // Force load the specific fonts
-    document.fonts.load("400 14px 'Crimson Text'");
-    document.fonts.load("600 24px 'Crimson Text'");
-    document.fonts.load("400 16px 'Lora'");
-  }
-  
-  // Create multiple test elements with different font weights/styles
-  const testElements = [
-    { fontFamily: "'Crimson Text', serif", fontWeight: '400', fontSize: '14px' },
-    { fontFamily: "'Crimson Text', serif", fontWeight: '600', fontSize: '24px' },
-    { fontFamily: "'Lora', serif", fontWeight: '400', fontSize: '16px' },
-    { fontFamily: "'Lora', serif", fontWeight: '500', fontSize: '18px' }
-  ];
-  
-  testElements.forEach((style, index) => {
-    const testEl = document.createElement('span');
-    testEl.style.position = 'absolute';
-    testEl.style.left = '-9999px';
-    testEl.style.top = '-9999px';
-    testEl.style.visibility = 'hidden';
-    testEl.style.fontFamily = style.fontFamily;
-    testEl.style.fontWeight = style.fontWeight;
-    testEl.style.fontSize = style.fontSize;
-    testEl.textContent = 'Whispers of the Quill ABC123';
-    testEl.id = `font-preload-${index}`;
-    
-    document.body.appendChild(testEl);
-    // Force layout calculation
-    testEl.getBoundingClientRect();
-  });
-  
-  // Clean up after a moment
-  setTimeout(() => {
-    testElements.forEach((_, index) => {
-      const el = document.getElementById(`font-preload-${index}`);
-      if (el) el.remove();
-    });
-  }, 100);
-};
-
-// Call this immediately when module loads
-preloadFonts();
-
 const NotebookApp = () => {
   const [notes, setNotes] = useState([]);
   const [currentNoteId, setCurrentNoteId] = useState(null);
@@ -73,20 +27,6 @@ const NotebookApp = () => {
 
   // setup app
   useEffect(() => {
-    // Additional font loading check
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        // Fonts are loaded, force re-render if needed
-        const appContainer = document.querySelector('.notebook-app-wrapper');
-        if (appContainer) {
-          appContainer.style.opacity = '0';
-          setTimeout(() => {
-            appContainer.style.opacity = '1';
-          }, 10);
-        }
-      });
-    }
-    
     loadNotesFromStorage();
     
     // use localStorage properly - check for browser support

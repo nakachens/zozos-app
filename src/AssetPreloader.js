@@ -138,6 +138,74 @@ export class AssetPreloader {
     return promise;
   }
 
+  // Preload Google Fonts
+  preloadGoogleFont(fontFamily, weights = ['400'], styles = ['normal']) {
+    const fontKey = `google-${fontFamily}`;
+    
+    if (this.loadedAssets.has(fontKey)) {
+      return Promise.resolve(this.loadedAssets.get(fontKey));
+    }
+
+    if (this.loadingPromises.has(fontKey)) {
+      return this.loadingPromises.get(fontKey);
+    }
+
+    const promise = new Promise((resolve, reject) => {
+      // Force load each weight and style combination
+      const loadPromises = [];
+      
+      weights.forEach(weight => {
+        styles.forEach(style => {
+          if (document.fonts && document.fonts.load) {
+            const fontString = `${weight} 16px '${fontFamily}'`;
+            loadPromises.push(
+              document.fonts.load(fontString).catch(() => {
+                // Ignore individual font loading failures
+                console.warn(`Failed to load ${fontString}`);
+              })
+            );
+          }
+        });
+      });
+
+      // Create test elements to force font rendering
+      const testElement = document.createElement('div');
+      testElement.style.position = 'absolute';
+      testElement.style.left = '-9999px';
+      testElement.style.visibility = 'hidden';
+      testElement.style.fontFamily = `'${fontFamily}', serif`;
+      testElement.textContent = 'Whispers of the Quill';
+      testElement.id = `google-font-test-${fontFamily.replace(/\s+/g, '-')}`;
+      
+      document.body.appendChild(testElement);
+      
+      // Force layout calculation
+      testElement.getBoundingClientRect();
+
+      Promise.all(loadPromises).then(() => {
+        this.loadedAssets.set(fontKey, true);
+        this.loadingPromises.delete(fontKey);
+        
+        // Clean up test element after a moment
+        setTimeout(() => {
+          const el = document.getElementById(testElement.id);
+          if (el) el.remove();
+        }, 100);
+        
+        resolve(true);
+      }).catch(() => {
+        this.loadingPromises.delete(fontKey);
+        // Clean up test element
+        const el = document.getElementById(testElement.id);
+        if (el) el.remove();
+        reject(new Error(`Failed to load Google Font: ${fontFamily}`));
+      });
+    });
+
+    this.loadingPromises.set(fontKey, promise);
+    return promise;
+  }
+
   // Wait for all fonts to be ready
   waitForFonts() {
     if (document.fonts && document.fonts.ready) {
@@ -157,6 +225,8 @@ export class AssetPreloader {
         return this.preloadAudio(asset.src);
       } else if (asset.type === 'font') {
         return this.preloadFont(asset.fontFamily, asset.src, asset.descriptors);
+      } else if (asset.type === 'google-font') {
+        return this.preloadGoogleFont(asset.fontFamily, asset.weights, asset.styles);
       }
       return Promise.resolve();
     });
@@ -179,6 +249,10 @@ export const CRITICAL_ASSETS = [
   // Fonts (load first for proper text rendering)
   { type: 'font', fontFamily: 'zozafont', src: './public/zozafont.ttf' },
   { type: 'font', fontFamily: 'Brick', src: './public/Brick.ttf' },
+  
+  // Google Fonts for NotebookApp (ADDED THIS)
+  { type: 'google-font', fontFamily: 'Crimson Text', weights: ['400', '600'], styles: ['normal', 'italic'] },
+  { type: 'google-font', fontFamily: 'Lora', weights: ['400', '500', '600'], styles: ['normal', 'italic'] },
   
   // Virtual Pet animations
   { type: 'image', src: './animations/walking_right.gif' },
