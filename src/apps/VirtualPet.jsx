@@ -1,6 +1,9 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
+// Import the asset preloader if you create it, otherwise remove this line
+// import { globalAssetPreloader } from './AssetPreloader';
+
 const VirtualPet = ({ onPetClick }) => {
   // Fix 1: Spawn above taskbar (48px + margin = 120px from bottom)
   const [position, setPosition] = useState({ x: 200, y: window.innerHeight - 420 }); // Spawn above taskbar
@@ -62,13 +65,42 @@ const VirtualPet = ({ onPetClick }) => {
   // walking speed
   const WALK_SPEED = 1;
 
-  // animation sources with loop control
+  // animation sources with optimized loading
   const animations = {
     walkRight: './animations/walking_right.gif',
     walkLeft: './animations/walking_left.gif',
     clickRight: './animations/click_right.gif', 
     clickLeft: './animations/click-left.gif',   
     drag: './animations/drag.png' 
+  };
+
+  // Optimized animation source getter
+  const getOptimizedAnimationSrc = (animationType) => {
+    const src = animations[animationType];
+    
+    // Check if we have the global asset preloader available
+    if (typeof window !== 'undefined' && window.globalAssetPreloader) {
+      const preloadedAsset = window.globalAssetPreloader.loadedAssets.get(src);
+      if (preloadedAsset && preloadedAsset instanceof Image) {
+        return preloadedAsset.src;
+      }
+    }
+    
+    return src;
+  };
+
+  // Preload animation function
+  const preloadAnimation = (animationType) => {
+    const src = animations[animationType];
+    if (typeof window !== 'undefined' && window.globalAssetPreloader) {
+      window.globalAssetPreloader.preloadImage(src).catch(error => {
+        console.warn(`Failed to preload animation ${src}:`, error);
+      });
+    } else {
+      // Fallback preloading without asset manager
+      const img = new Image();
+      img.src = src;
+    }
   };
 
   // animation loop
@@ -109,6 +141,14 @@ const VirtualPet = ({ onPetClick }) => {
       }
     };
   }, [walkingLoop, isWalking, isDragging, isClicked]);
+
+  // Preload likely next animations on mount and state changes
+  useEffect(() => {
+    // Preload all animations on component mount
+    Object.keys(animations).forEach(animationType => {
+      preloadAnimation(animationType);
+    });
+  }, []);
 
   // handle right click to show context menu (changed from left click)
   const handlePetRightClick = (e) => {
@@ -192,23 +232,43 @@ const VirtualPet = ({ onPetClick }) => {
     // using directional click animation based on current walking direction
     const clickAnimationType = direction === 1 ? 'clickRight' : 'clickLeft';
     
-    // preload animation and control looping
-    const img = new Image();
-    img.onload = () => {
+    // Use optimized animation source
+    const animationSrc = getOptimizedAnimationSrc(clickAnimationType);
+    
+    // Check if asset is preloaded
+    const isPreloaded = typeof window !== 'undefined' && 
+                       window.globalAssetPreloader && 
+                       window.globalAssetPreloader.loadedAssets.has(animations[clickAnimationType]);
+    
+    if (isPreloaded) {
+      // Asset is already loaded, use it immediately
       setCurrentAnimation(clickAnimationType);
-      
-      // force reload the GIF to prevent looping by adding timestamp
       const timestamp = Date.now();
       const imgElement = petRef.current?.querySelector('img');
       if (imgElement) {
-        imgElement.src = `${animations[clickAnimationType]}?t=${timestamp}`;
+        imgElement.src = `${animationSrc}?t=${timestamp}`;
       }
-    };
-    img.onerror = () => {
-      console.warn(`Failed to load click animation: ${animations[clickAnimationType]}`);
-      setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
-    };
-    img.src = animations[clickAnimationType];
+    } else {
+      // Fallback: preload and then use the animation
+      const img = new Image();
+      img.onload = () => {
+        if (isClicked) { // Make sure we're still in click state
+          setCurrentAnimation(clickAnimationType);
+          
+          // force reload the GIF to prevent looping by adding timestamp
+          const timestamp = Date.now();
+          const imgElement = petRef.current?.querySelector('img');
+          if (imgElement) {
+            imgElement.src = `${animationSrc}?t=${timestamp}`;
+          }
+        }
+      };
+      img.onerror = () => {
+        console.warn(`Failed to load click animation: ${animationSrc}`);
+        setCurrentAnimation(direction === 1 ? 'walkRight' : 'walkLeft');
+      };
+      img.src = animationSrc;
+    }
 
     if (onPetClick) {
       onPetClick();
@@ -391,11 +451,11 @@ const VirtualPet = ({ onPetClick }) => {
         onMouseDown={handleMouseDown}
         onDragStart={(e) => e.preventDefault()}
       >
-        {/* image with better animation control */}
+        {/* image with optimized animation control */}
         <img
           src={currentAnimation === 'clickRight' || currentAnimation === 'clickLeft' 
-            ? `${animations[currentAnimation]}?t=${Date.now()}` // Force reload for click animations
-            : animations[currentAnimation]
+            ? `${getOptimizedAnimationSrc(currentAnimation)}?t=${Date.now()}` // Force reload for click animations
+            : getOptimizedAnimationSrc(currentAnimation)
           }
           alt="Haku"
           className="w-full h-full object-contain"
@@ -406,9 +466,20 @@ const VirtualPet = ({ onPetClick }) => {
           }}
           draggable={false}
           onLoad={(e) => {
+            // Pre-cache the next likely animations when current animation loads
+            if (currentAnimation.includes('walk')) {
+              const nextClickAnim = direction === 1 ? 'clickRight' : 'clickLeft';
+              preloadAnimation(nextClickAnim);
+            }
+            
             e.target.onerror = () => {
-              console.warn(`Failed to load pet animation: ${animations[currentAnimation]}`);
+              console.warn(`Failed to load pet animation: ${e.target.src}`);
             };
+          }}
+          onError={(e) => {
+            console.warn(`Failed to load pet animation: ${e.target.src}`);
+            // Fallback to basic walking animation
+            e.target.src = './animations/walking_right.gif';
           }}
         />
         

@@ -2,6 +2,8 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
+import LoadingScreen from './LoadingScreen';
+import { globalAssetPreloader, MUSIC_ASSETS, GAME_ASSETS } from './AssetPreloader';
 
 // all apps
 import CalculatorApp from './apps/CalculatorApp';
@@ -2732,7 +2734,7 @@ function Taskbar({ openWindows, onToggleWindow, onOpenStartMenu, isStartMenuOpen
 
 // main App comp
 export default function RetroOS() {
-  const [stage, setStage] = useState('welcome');
+  const [stage, setStage] = useState('loading'); // Change initial state to 'loading'
   const [openWindows, setOpenWindows] = useState([]);
   const [activeWindow, setActiveWindow] = useState(null);
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
@@ -2742,8 +2744,35 @@ export default function RetroOS() {
   //  state to track which windows are being closed
   const [closingWindows, setClosingWindows] = useState(new Set());
 
+  const handleLoadingComplete = () => {
+    setStage('welcome');
+  };
+
+  // Preload additional assets when needed
+  const preloadMusicAssets = async () => {
+    try {
+      await globalAssetPreloader.preloadAssets(MUSIC_ASSETS);
+    } catch (error) {
+      console.warn('Failed to preload music assets:', error);
+    }
+  };
+
+  const preloadGameAssets = async () => {
+    try {
+      await globalAssetPreloader.preloadAssets(GAME_ASSETS);
+    } catch (error) {
+      console.warn('Failed to preload game assets:', error);
+    }
+  };
+
   // window management
-  const openApp = (app) => {
+  const openApp = async (app) => {
+    // Preload assets for specific apps
+    if (app.id === 'music') {
+      preloadMusicAssets(); // Don't await, load in background
+    } else if (app.id === 'leaves') {
+      preloadGameAssets(); // Don't await, load in background
+    }
     const existingWindow = openWindows.find(w => w.id === app.id);
     if (existingWindow) {
       if (existingWindow.minimized) {
@@ -2889,6 +2918,9 @@ export default function RetroOS() {
 };
 
   // stage/screen transitions
+  if (stage === 'loading') {
+    return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
+  }
   if (stage === 'welcome') {
     return <WelcomeScreen onContinue={() => setStage('login')} />;
   }
