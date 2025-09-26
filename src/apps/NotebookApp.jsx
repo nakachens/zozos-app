@@ -18,7 +18,6 @@ const NotebookApp = () => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  // NEW STATE: Track if dialogue has been shown this session
   const [hasShownDialogThisSession, setHasShownDialogThisSession] = useState(false);
   
   const autoSaveTimeoutRef = useRef(null);
@@ -191,7 +190,7 @@ const NotebookApp = () => {
     newNote();
     //adding a lil delay just to make everything sure
     setTimeout(() => {
-      // MODIFIED: Only show dialog if it hasn't been shown this session
+      // Only show dialog if it hasn't been shown this session
       if (!hasShownDialogThisSession) {
         showCharacterDialog();
       }
@@ -203,7 +202,7 @@ const NotebookApp = () => {
     setDialogStep(0);
     setDialogMessage("It's okay, write it out... Let your heart speak through the ink. ✨");
     setShowDialog(true);
-    // MODIFIED: Mark that dialog has been shown this session
+    // Mark that dialog has been shown this session
     setHasShownDialogThisSession(true);
   };
 
