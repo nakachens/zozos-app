@@ -18,6 +18,9 @@ const NotebookApp = () => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
   
+  // Add state to track if dialog has been shown in this session
+  const [dialogShownThisSession, setDialogShownThisSession] = useState(false);
+  
   const autoSaveTimeoutRef = useRef(null);
   const editorRef = useRef(null);
   const clickSoundRef = useRef(null); 
@@ -127,10 +130,14 @@ const NotebookApp = () => {
     playClickSound();
     setCurrentMainScreen('writing');
     newNote();
-    //adding a lil delay just to make everything sure
-    setTimeout(() => {
-      showCharacterDialog();
-    }, 100);
+    
+    // Only show dialog if it hasn't been shown in this session
+    if (!dialogShownThisSession) {
+      setTimeout(() => {
+        showCharacterDialog();
+        setDialogShownThisSession(true); // Mark as shown for this session
+      }, 100);
+    }
   };
 
   // character dialogue
