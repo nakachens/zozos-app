@@ -1,0 +1,334 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+@font-face {
+  font-family: 'Zozafont';
+  src: url('/zozafont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+/* global styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Lora', 'Georgia', serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  user-select: none;
+  background: linear-gradient(135deg, #FEF7ED 0%, #FDBA74 100%);
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+/*  OS specific styles */
+.autumn-button {
+  background: linear-gradient(to bottom, #FEF3C7, #FDE68A);
+  border: 2px solid #D97706;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.autumn-button:hover {
+  background: linear-gradient(to bottom, #FDE68A, #FBBF24);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.autumn-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.autumn-window {
+  background: linear-gradient(to bottom, #FEF7ED, #FED7AA);
+  border: 2px solid #D97706;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.autumn-titlebar {
+  background: linear-gradient(90deg, #F59E0B 0%, #EA580C 100%);
+  color: white;
+  padding: 8px 10px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 10px 10px 0 0;
+  font-family: 'Lora', serif;
+  font-weight: 600;
+}
+
+.autumn-titlebar.inactive {
+  background: linear-gradient(90deg, #D97706 0%, #B45309 100%);
+  opacity: 0.8;
+}
+
+/* custom scrollbar with our theme */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(to bottom, #FEF7ED, #FED7AA);
+  border: 1px solid #D97706;
+  border-radius: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #F59E0B, #EA580C);
+  border: 1px solid #D97706;
+  border-radius: 7px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #FBBF24, #F59E0B);
+}
+
+/* disable text selection for OS elements */
+.os-element {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* app content can be selectable */
+.app-content {
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+}
+
+/* autumn-themed animations */
+.fade-in {
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { 
+    transform: translateY(30px); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateY(0); 
+    opacity: 1; 
+  }
+}
+
+/* floating leaves animation */
+.floating-leaf {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  25% { 
+    transform: translateY(-10px) rotate(2deg); 
+  }
+  50% { 
+    transform: translateY(-5px) rotate(-1deg); 
+  }
+  75% { 
+    transform: translateY(-15px) rotate(1deg); 
+  }
+}
+
+/* Warm glow effects */
+.warm-glow {
+  box-shadow: 
+    0 0 20px rgba(251, 191, 36, 0.3),
+    0 0 40px rgba(249, 115, 22, 0.2),
+    0 0 60px rgba(234, 88, 12, 0.1);
+}
+
+/* text styles */
+.cozy-text {
+  font-family: 'Crimson Text', serif;
+  color: #92400E;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* gradient backgrounds */
+.autumn-bg-primary {
+  background: linear-gradient(135deg, 
+    #FEF7ED 0%, 
+    #FED7AA 25%, 
+    #FDBA74 50%, 
+    #FB923C 75%, 
+    #F97316 100%
+  );
+}
+
+.autumn-bg-secondary {
+  background: linear-gradient(135deg, 
+    #FFFBEB 0%, 
+    #FEF3C7 50%, 
+    #FDE68A 100%
+  );
+}
+
+/* texture effect */
+.paper-texture {
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(217,119,6,0.15) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+/* seasonal indicator styles */
+.season-indicator {
+  position: relative;
+}
+
+.season-indicator::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #F59E0B, #EA580C);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+  50% { 
+    opacity: 0.7; 
+    transform: scale(1.2); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1); 
+  }
+}
+
+[class*="container"]:not([class*="button"]):not([class*="input"]):not([class*="popup"]):not([class*="modal"]) {
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+}
+
+.poetry-app,
+.poetry-app .app-container,
+.tictactoe-container,
+.tictactoe-container .container,
+.music-player-container,
+.music-player-container .app-container,
+.weather-app .app-container,
+.calculator *[style*="gradient"] {
+  background: transparent !important;
+  background-image: none !important;
+  background-color: transparent !important;
+}
+
+button,
+input,
+.game-board,
+.cell,
+.popup,
+.modal,
+.tv-frame,
+.tv-screen,
+.character-placeholder,
+.character-area,
+.chat-popup,
+.chat-header,
+.chat-body,
+.suggestions,
+.poem-card,
+.nav-btn,
+.action-btn {
+}
+
+.calculator {
+  background: transparent !important;
+  background-image: none !important;
+}
+
+.window-smooth-transition {
+  transition: width 0.1s ease-out, height 0.1s ease-out, left 0.1s ease-out, top 0.1s ease-out;
+}
+
+.window-resizing {
+  transition: none !important;
+}
+
+.resize-handle {
+  transition: opacity 0.2s ease;
+  opacity: 0;
+}
+
+.resize-handle:hover {
+  opacity: 0.3;
+  background: rgba(139, 69, 19, 0.2) !important;
+}
+
+.window-container:hover .resize-handle {
+  opacity: 0.1;
+}
+
+.window-container {
+  transition: cursor 0.1s ease;
+}
+
+.window-resizing * {
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+.app-content-smooth {
+  transition: transform 0.05s ease-out;
+}
+
+.window-container {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.resize-handle {
+  will-change: opacity;
+  transform: translateZ(0);
+}

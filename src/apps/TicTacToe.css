@@ -1,0 +1,366 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Nunito:wght@600;700&display=swap');
+
+.tictactoe-container * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.tictactoe-container {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(135deg, #f4f1e8 0%, #e8dcc6 100%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #8b4513;
+  position: relative;
+  overflow: hidden;
+}
+
+.tictactoe-container .container {
+  background: transparent; 
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 15px 35px rgba(139, 69, 19, 0.15);
+  border: 3px solid #d4a574;
+  width: 100%;
+  height: 100%;
+  max-width: 360px;
+  max-height: 420px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tictactoe-container h1 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.8em;
+  color: #a0522d;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(139, 69, 19, 0.1);
+  flex-shrink: 0;
+}
+
+.tictactoe-container .btn {
+  background: linear-gradient(145deg, #deb887, #cd853f);
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  font-size: 0.9em;
+  color: #8b4513;
+  cursor: pointer;
+  margin: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(205, 133, 63, 0.3);
+}
+
+.tictactoe-container .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(205, 133, 63, 0.4);
+  background: linear-gradient(145deg, #f0e68c, #daa520);
+}
+
+.tictactoe-container .btn:active {
+  transform: translateY(0);
+}
+
+.tictactoe-container .home-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  gap: 20px;
+}
+
+.tictactoe-container .game-screen {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.tictactoe-container .game-screen.active {
+  display: flex;
+}
+
+.tictactoe-container .home-screen.hidden {
+  display: none;
+}
+
+.tictactoe-container .game-board {
+  aspect-ratio: 1 / 1;
+  box-sizing: content-box;
+}
+
+
+.tictactoe-container .cell {
+  min-width: 60px;
+  min-height: 60px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em !important;
+}
+
+.tictactoe-container .cell:hover:not(:disabled) {
+  background: #f5f2e8;
+  transform: scale(1.05);
+}
+
+.tictactoe-container .cell:disabled {
+  cursor: not-allowed;
+}
+
+.tictactoe-container .game-info {
+  margin: 12px 0;
+  font-weight: 700;
+  font-size: 1em;
+  flex-shrink: 0;
+}
+
+.tictactoe-container .popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(139, 69, 19, 0.4);
+  z-index: 10000;
+  backdrop-filter: blur(3px);
+}
+
+.tictactoe-container .popup-overlay.active {
+  display: block;
+}
+
+.tictactoe-container .popup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #faf7f0;
+  padding: 25px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(139, 69, 19, 0.3);
+  border: 3px solid #d4a574;
+  min-width: 260px;
+  max-width: 90%;
+}
+
+.tictactoe-container .popup h2 {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.5em;
+  color: #a0522d;
+  margin-bottom: 15px;
+}
+
+.tictactoe-container .popup p {
+  margin-bottom: 15px;
+  font-weight: 600;
+  color: #8b4513;
+  font-size: 1em;
+}
+
+.tictactoe-container .chat-popup {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  border: 3px solid #444;
+  color: white;
+  padding: 0;
+  border-radius: 15px;
+  min-width: 250px;
+  max-width: 280px;
+  overflow: hidden;
+}
+
+.tictactoe-container .chat-header {
+  background: linear-gradient(135deg, #d4a574 0%, #cd853f 100%);
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid #444;
+}
+
+.tictactoe-container .chat-pfp {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b4513, #a0522d);
+  border: 2px solid #faf7f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2em;
+  color: #faf7f0;
+  flex-shrink: 0;
+}
+
+.tictactoe-container .chat-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1em;
+  color: #2a2a2a;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.tictactoe-container .chat-body {
+  padding: 15px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+  position: relative;
+}
+
+.tictactoe-container .chat-dialogue {
+  background: rgba(212, 165, 116, 0.15);
+  border: 2px solid #d4a574;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.tictactoe-container .chat-dialogue::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 18px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #d4a574;
+}
+
+.tictactoe-container .chat-text {
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95em;
+  color: #f0e68c;
+  margin: 0;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.tictactoe-container .chat-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tictactoe-container .chat-btn {
+  background: linear-gradient(145deg, #d4a574, #cd853f);
+  border: 2px solid #8b4513;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  font-size: 0.8em;
+  color: #2a2a2a;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tictactoe-container .chat-btn:hover {
+  background: linear-gradient(145deg, #f0e68c, #daa520);
+  transform: translateY(-1px);
+}
+
+.tictactoe-container .stats {
+  background: #f5f2e8;
+  padding: 12px;
+  border-radius: 10px;
+  margin: 12px 0;
+  border: 2px solid #e8dcc6;
+}
+
+.tictactoe-container .stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+
+.tictactoe-container .winner-text {
+  font-style: italic;
+  color: #a0522d;
+  font-weight: 700;
+  margin-top: 8px;
+  font-size: 0.9em;
+}
+
+@media (max-width: 420px) {
+  .tictactoe-container .container {
+    padding: 15px;
+  }
+  
+  .tictactoe-container h1 {
+    font-size: 1.5em;
+  }
+  
+  .tictactoe-container .cell {
+    width: 50px;
+    height: 50px;
+    font-size: 1.3em;
+  }
+  
+  .tictactoe-container .game-board {
+    max-width: 200px;
+  }
+}
+
+.tictactoe-container,
+.tictactoe-container .container,
+.tictactoe-container * {
+  background: transparent !important;
+}
+
+.tictactoe-container .game-board {
+  background: #d4a574 !important;
+}
+
+.tictactoe-container .cell {
+  background: #faf7f0 !important;
+}
+
+.tictactoe-container .stats {
+  background: #f5f2e8 !important;
+}
+
+.tictactoe-container .popup {
+  background: #faf7f0 !important;
+}
+
+.tictactoe-container .chat-header {
+  background: linear-gradient(135deg, #d4a574 0%, #cd853f 100%) !important;
+}
+
+.tictactoe-container .chat-body {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%) !important;
+}
+
+.tictactoe-container .chat-popup {
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%) !important;
+}
+.tictactoe-container .game-screen {
+  gap: 5px !important;
+}
+
+.tictactoe-container .game-info {
+  margin: 8px 0 !important;
+}
+
+.tictactoe-container h1 {
+  margin-bottom: 10px !important;
+}
+
+.tictactoe-container .game-board {
+  margin: 10px auto !important;
+}
