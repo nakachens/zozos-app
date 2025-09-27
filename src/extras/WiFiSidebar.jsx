@@ -37,7 +37,7 @@ function WiFiSidebar({ isOpen, onClose, onZozoClick }) {
           borderRadius: '8px'
         }}
       >
-        {/* Header */}
+        {/* header */}
         <div 
           className="px-4 py-3 border-b-2 flex items-center justify-between"
           style={{
@@ -60,9 +60,8 @@ function WiFiSidebar({ isOpen, onClose, onZozoClick }) {
           </button>
         </div>
 
-        {/* Settings Content */}
+        {/* settings */}
         <div className="p-5 space-y-4">
-          {/* Settings Grid with proper spacing */}
           <div className="grid grid-cols-2 gap-3">
             {[
               { label: 'WiFi', icon: '📶', enabled: wifiEnabled, setter: setWifiEnabled },
@@ -94,7 +93,7 @@ function WiFiSidebar({ isOpen, onClose, onZozoClick }) {
             ))}
           </div>
 
-          {/* Special Zozo Button with margins */}
+          {/* zozo special*/}
           <div className="px-2">
             <button
               className="w-full p-3 border-2 rounded transition-all duration-200 flex items-center justify-center space-x-2 hover:transform hover:scale-105"
@@ -116,7 +115,7 @@ function WiFiSidebar({ isOpen, onClose, onZozoClick }) {
             </button>
           </div>
 
-          {/* Sliders with proper margins */}
+          {/* sliders*/}
           <div className="space-y-4 pt-3 border-t-2 px-2" style={{ borderColor: '#8b4513' }}>
             <div className="px-2 py-2">
               <div className="flex justify-between items-center mb-2">

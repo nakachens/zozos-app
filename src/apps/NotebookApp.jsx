@@ -18,7 +18,6 @@ const NotebookApp = () => {
   const [showDeletePopup, setShowDeletePopup] = useState(false);
   const [noteToDelete, setNoteToDelete] = useState(null);
   
-  // Add state to track if dialog has been shown in this session
   const [dialogShownThisSession, setDialogShownThisSession] = useState(false);
   
   const autoSaveTimeoutRef = useRef(null);
@@ -26,7 +25,6 @@ const NotebookApp = () => {
   const clickSoundRef = useRef(null); 
   const saveIntervalRef = useRef(null);
 
-  // Helper function to safely use localStorage
   const safeLocalStorage = {
     getItem: (key) => {
       try {
@@ -47,7 +45,7 @@ const NotebookApp = () => {
     }
   };
 
-  // Load notes from storage
+  // loading notes 
   const loadNotesFromStorage = () => {
     const saved = safeLocalStorage.getItem('journalNotes');
     if (saved) {
@@ -60,12 +58,12 @@ const NotebookApp = () => {
     }
   };
 
-  // Save notes to storage
+  // saving notes
   const saveNotesToStorage = () => {
     safeLocalStorage.setItem('journalNotes', JSON.stringify(notes));
   };
 
-  // Save current state to storage (including unsaved content)
+  // saving unsaved content to editor so we dont lose track of what we were writing
   const saveCurrentState = () => {
     const currentState = {
       notes: notes,
@@ -79,7 +77,6 @@ const NotebookApp = () => {
     safeLocalStorage.setItem('journalAppState', JSON.stringify(currentState));
   };
 
-  // Load current state from storage
   const loadCurrentState = () => {
     const saved = safeLocalStorage.getItem('journalAppState');
     if (saved) {
@@ -94,26 +91,21 @@ const NotebookApp = () => {
         setCurrentMainScreen(parsedState.currentMainScreen || 'myNotes');
       } catch (e) {
         console.warn('Could not parse app state from storage:', e);
-        // Fallback to loading just notes
         loadNotesFromStorage();
       }
     } else {
-      // Fallback to loading just notes
       loadNotesFromStorage();
     }
   };
 
-  // Setup app - load state on mount
   useEffect(() => {
     loadCurrentState();
     
-    // Setup click sound
     clickSoundRef.current = new Audio('/click.mp3');
     if (clickSoundRef.current) {
       clickSoundRef.current.volume = 0.3;
     }
 
-    // Set up periodic saving every 10 seconds
     saveIntervalRef.current = setInterval(() => {
       saveCurrentState();
     }, 10000);
@@ -125,18 +117,15 @@ const NotebookApp = () => {
     };
   }, []);
 
-  // Save state whenever important data changes
   useEffect(() => {
     saveCurrentState();
   }, [notes, currentNoteId, editorContent, theme, autoSaveEnabled, currentScreen, currentMainScreen]);
 
-  // Save state before component unmounts (app closes)
   useEffect(() => {
     const handleBeforeUnload = () => {
       saveCurrentState();
     };
 
-    // Save state when component unmounts or app closes
     return () => {
       saveCurrentState();
       if (saveIntervalRef.current) {
@@ -221,7 +210,7 @@ const NotebookApp = () => {
   const showNewNote = () => {
     playClickSound();
     
-    // If auto-save is enabled and there's unsaved content, save it first
+    // if auto-save, save all kinda content
     if (autoSaveEnabled && editorContent.trim() && currentNoteId === null) {
       saveCurrentNoteImmediately();
     }
@@ -229,11 +218,11 @@ const NotebookApp = () => {
     setCurrentMainScreen('writing');
     newNote();
     
-    // Only show dialog if it hasn't been shown in this session
+    // dialogue per window
     if (!dialogShownThisSession) {
       setTimeout(() => {
         showCharacterDialog();
-        setDialogShownThisSession(true); // Mark as shown for this session
+        setDialogShownThisSession(true); 
       }, 100);
     }
   };
@@ -250,7 +239,7 @@ const NotebookApp = () => {
     if (dialogStep === 0) {
       setDialogStep(1);
       if (choice === 'try') {
-        setDialogMessage("Good job! I believe in you. Pour your heart onto these pages.  💫");
+        setDialogMessage("Good job.. I believe in you.. Pour your heart onto these pages.. 💫");
       } else if (choice === 'away') {
         setDialogMessage("what the heck bro i was just tryna be nice");
       }
@@ -270,7 +259,7 @@ const NotebookApp = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
-  // Save current note immediately (for auto-save scenarios)
+  //  auto-saving speciality
   const saveCurrentNoteImmediately = () => {
     const content = editorContent.trim();
     if (!content) return;
@@ -357,12 +346,10 @@ const NotebookApp = () => {
   useEffect(() => {
     if (!autoSaveEnabled || !editorContent.trim()) return;
 
-    // Clear any existing timeout
     if (autoSaveTimeoutRef.current) {
       clearTimeout(autoSaveTimeoutRef.current);
     }
 
-    // Set a new timeout for auto-saving
     autoSaveTimeoutRef.current = setTimeout(() => {
       const content = editorContent.trim();
       if (content) {
@@ -391,9 +378,9 @@ const NotebookApp = () => {
         setNotes(updatedNotes);
         showSaveIndicator();
       }
-    }, 1000); // Reduced from 2000ms to 1000ms for faster auto-save
+    }, 1000); 
 
-    // Cleanup function
+    // cleanup function
     return () => {
       if (autoSaveTimeoutRef.current) {
         clearTimeout(autoSaveTimeoutRef.current);
