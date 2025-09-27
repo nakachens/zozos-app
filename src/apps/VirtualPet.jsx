@@ -18,7 +18,7 @@ const VirtualPet = ({ onPetClick }) => {
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   
-  // Add key for forcing re-render of images
+  // forcing re-render of images
   const [animationKey, setAnimationKey] = useState(0);
   
   const petRef = useRef(null);
@@ -66,7 +66,7 @@ const VirtualPet = ({ onPetClick }) => {
     drag: './animations/drag.png' 
   };
 
-  // Simplified animation source getter - remove caching complexity for now
+  // Simplified animation source getter 
   const getAnimationSrc = (animationType) => {
     return animations[animationType];
   };
@@ -162,7 +162,7 @@ const VirtualPet = ({ onPetClick }) => {
     );
   };
 
-  // FIXED: Simplified click handler
+  // simplified click handler
   const handlePetClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -173,27 +173,26 @@ const VirtualPet = ({ onPetClick }) => {
 
     console.log('Pet clicked - starting click animation');
     
-    // IMMEDIATE state changes - no delays
+    // no delays, immediate reaction
     setIsClicked(true);
     setIsWalking(false);
     
-    // Set click animation immediately
+    // set click animation immediately
     const clickAnimationType = direction === 1 ? 'clickRight' : 'clickLeft';
     setCurrentAnimation(clickAnimationType);
     
-    // Force re-render of the image to restart the GIF
+    // force rendering
     setAnimationKey(prev => prev + 1);
     
     if (onPetClick) {
       onPetClick();
     }
 
-    // Clear any existing timeout
     if (clickTimeoutRef.current) {
       clearTimeout(clickTimeoutRef.current);
     }
 
-    // Resume walking after animation
+    // resume walking after animation
     clickTimeoutRef.current = setTimeout(() => {
       console.log('Click animation finished, resuming walking...');
       setIsClicked(false);
@@ -357,9 +356,9 @@ const VirtualPet = ({ onPetClick }) => {
         onMouseDown={handleMouseDown}
         onDragStart={(e) => e.preventDefault()}
       >
-        {/* FIXED: Simplified image with key-based re-rendering */}
+        {/* rendered image */}
         <img
-          key={`${currentAnimation}-${animationKey}`} // This forces React to create a new img element
+          key={`${currentAnimation}-${animationKey}`} // forces to create a new img element
           src={getAnimationSrc(currentAnimation)}
           alt="Haku"
           className="w-full h-full object-contain"
@@ -371,12 +370,11 @@ const VirtualPet = ({ onPetClick }) => {
           draggable={false}
           onError={(e) => {
             console.warn(`Failed to load pet animation: ${e.target.src}`);
-            // Fallback to basic walking animation
             e.target.src = './animations/walking_right.gif';
           }}
         />
         
-        {/* Click animation bubble */}
+        {/* click animation chat */}
         {isClicked && !isInBackground && (
           <div
             className="absolute left-1/2 transform -translate-x-1/2 bg-amber-100 border-2 px-2 py-1 rounded-lg text-xs font-bold"
@@ -393,7 +391,7 @@ const VirtualPet = ({ onPetClick }) => {
           </div>
         )}
 
-        {/* Drag animation bubble */}
+        {/* drag animation chat*/}
         {isDragging && (
           <div
             className="absolute left-1/2 transform -translate-x-1/2 bg-orange-100 border-2 px-4 py-2 rounded-lg text-xs font-bold animate-bounce"
@@ -412,7 +410,7 @@ const VirtualPet = ({ onPetClick }) => {
         )}
       </div>
 
-      {/* Context menu */}
+      {/* context menu */}
       {showContextMenu && (
         <div
           ref={contextMenuRef}
