@@ -8,18 +8,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- CRITICAL: Load Google Fonts WITHOUT font-display=swap to prevent font delay -->
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=block" rel="stylesheet">
+    <!-- CRITICAL: Load ALL Notebook App Google Fonts WITHOUT font-display=swap to prevent font delay -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;500;600&display=block" rel="stylesheet">
     
     <!-- Force immediate font loading with CSS -->
     <style>
       /* Force Google Fonts to load immediately */
-      @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=block');
+      @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;500;600&display=block');
       
-      /* Force font preload with invisible text */
+      /* Force font preload with invisible text using ALL notebook fonts */
       body::before {
-        content: 'Whispers of the Quill Dear diary magical entry';
-        font-family: 'Crimson Text', serif;
+        content: 'Whispers of the Quill Dear diary magical entry Mysterious dude';
+        font-family: 'Dancing Script', cursive;
         font-weight: 400;
         position: absolute;
         left: -9999px;
@@ -29,8 +29,30 @@
       
       body::after {
         content: 'Whispers of the Quill Dear diary magical entry';
-        font-family: 'Lora', serif;
+        font-family: 'Crimson Text', serif;
         font-weight: 400;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        visibility: hidden;
+      }
+
+      /* Additional preload for Cinzel font */
+      html::before {
+        content: 'CLOCK Menu Applications';
+        font-family: 'Cinzel', serif;
+        font-weight: 400;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        visibility: hidden;
+      }
+
+      /* Dancing Script additional weights */
+      html::after {
+        content: 'Mysterious dude Menu My Collected Thoughts';
+        font-family: 'Dancing Script', cursive;
+        font-weight: 600;
         position: absolute;
         left: -9999px;
         top: -9999px;
@@ -131,7 +153,7 @@
         padding: 0;
         overflow: hidden;
         background: linear-gradient(135deg, #FEF7ED 0%, #FDBA74 100%);
-        font-family: 'Lora', 'Georgia', serif;
+        font-family: 'Crimson Text', 'Georgia', serif;
       }
       
       #root {

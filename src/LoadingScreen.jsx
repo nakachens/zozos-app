@@ -15,6 +15,7 @@ function LoadingScreen({ onLoadingComplete }) {
         'Loading desktop assets...',
         'Preparing applications...',
         'Loading fonts...',
+        'Preloading notebook fonts...',
         'Almost ready...',
         'please bare with me..',
         'oh im crying as im making this',
@@ -24,7 +25,7 @@ function LoadingScreen({ onLoadingComplete }) {
       try {
         // Load assets with progress tracking
         let loadedCount = 0;
-        const totalAssets = CRITICAL_ASSETS.length + 1; // +1 for font loading
+        const totalAssets = CRITICAL_ASSETS.length + 2; // +2 for font loading phases
 
         // Update loading text periodically
         const textInterval = setInterval(() => {
@@ -39,16 +40,20 @@ function LoadingScreen({ onLoadingComplete }) {
           if (!isMounted) break;
 
           const asset = CRITICAL_ASSETS[i];
-          setCurrentAsset(asset.src.split('/').pop());
+          setCurrentAsset(asset.src ? asset.src.split('/').pop() : asset.fontFamily);
 
           try {
             if (asset.type === 'image') {
               await globalAssetPreloader.preloadImage(asset.src);
             } else if (asset.type === 'audio') {
               await globalAssetPreloader.preloadAudio(asset.src);
+            } else if (asset.type === 'google-font') {
+              await globalAssetPreloader.preloadGoogleFont(asset.fontFamily, asset.weights, asset.styles);
+            } else if (asset.type === 'font') {
+              await globalAssetPreloader.preloadFont(asset.fontFamily, asset.src, asset.descriptors);
             }
           } catch (error) {
-            console.warn(`Failed to load ${asset.src}:`, error);
+            console.warn(`Failed to load ${asset.src || asset.fontFamily}:`, error);
           }
 
           loadedCount++;
@@ -57,32 +62,79 @@ function LoadingScreen({ onLoadingComplete }) {
           }
         }
 
-        // Wait for fonts to load
+        // Special focus on Dancing Script font loading
         if (isMounted) {
-          setCurrentAsset('fonts');
-          setLoadingText('Loading fonts...');
+          setCurrentAsset('Dancing Script font');
+          setLoadingText('Loading Dancing Script font...');
+          
+          // Create test elements to force Dancing Script to load properly
+          const testTexts = [
+            'Whispers of the Quill',
+            'Mysterious dude', 
+            'Dear diary magical entry',
+            'My Collected Thoughts'
+          ];
+          
+          testTexts.forEach((text, index) => {
+            const testEl = document.createElement('div');
+            testEl.style.position = 'fixed';
+            testEl.style.left = '-9999px';
+            testEl.style.top = '-9999px';
+            testEl.style.visibility = 'hidden';
+            testEl.style.fontFamily = '"Dancing Script", cursive';
+            testEl.style.fontSize = '16px';
+            testEl.textContent = text;
+            
+            document.body.appendChild(testEl);
+            
+            // Force reflow
+            testEl.offsetHeight;
+            testEl.getBoundingClientRect();
+            
+            setTimeout(() => {
+              if (testEl.parentNode) {
+                testEl.parentNode.removeChild(testEl);
+              }
+            }, 100 + (index * 50));
+          });
+          
+          // Wait for Dancing Script to be properly loaded
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          loadedCount++;
+          setProgress((loadedCount / totalAssets) * 100);
+        }
+
+        // Wait for all fonts to be ready
+        if (isMounted) {
+          setCurrentAsset('system fonts');
+          setLoadingText('Finalizing font loading...');
           
           try {
             // Wait for document fonts to be ready
             if (document.fonts && document.fonts.ready) {
               await document.fonts.ready;
-            } else {
-              // Fallback: wait a bit for fonts to load
-              await new Promise(resolve => setTimeout(resolve, 500));
             }
             
-            // Additional check for custom font
-            const testElement = document.createElement('div');
-            testElement.style.fontFamily = 'zozafont, monospace';
-            testElement.style.fontSize = '12px';
-            testElement.style.visibility = 'hidden';
-            testElement.style.position = 'absolute';
-            testElement.textContent = 'Test';
-            document.body.appendChild(testElement);
+            // Additional verification that Dancing Script is loaded
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
             
-            // Give a moment for font to apply
-            await new Promise(resolve => setTimeout(resolve, 200));
-            document.body.removeChild(testElement);
+            // Test Dancing Script loading
+            ctx.font = '20px cursive';
+            const fallbackWidth = ctx.measureText('Mysterious dude').width;
+            
+            ctx.font = '20px "Dancing Script", cursive';
+            const dancingWidth = ctx.measureText('Mysterious dude').width;
+            
+            // If they're the same, Dancing Script might not be loaded yet
+            if (Math.abs(dancingWidth - fallbackWidth) < 1) {
+              console.warn('Dancing Script may not be fully loaded, waiting...');
+              await new Promise(resolve => setTimeout(resolve, 800));
+            }
+            
+            // Additional wait for all fonts to settle
+            await new Promise(resolve => setTimeout(resolve, 300));
             
           } catch (error) {
             console.warn('Font loading check failed:', error);

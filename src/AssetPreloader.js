@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // AssetPreloader.js
 export class AssetPreloader {
   constructor() {
@@ -138,7 +139,7 @@ export class AssetPreloader {
     return promise;
   }
 
-  // Force Google Fonts to load immediately (bypass font-display: swap)
+  // Enhanced Google Fonts preloader with better Dancing Script handling
   preloadGoogleFont(fontFamily, weights = ['400'], styles = ['normal']) {
     const fontKey = `google-${fontFamily}`;
     
@@ -153,7 +154,7 @@ export class AssetPreloader {
     const promise = new Promise((resolve, reject) => {
       // Wait for document.fonts to be available
       if (!document.fonts) {
-        setTimeout(() => resolve(true), 500);
+        setTimeout(() => resolve(true), 1000);
         return;
       }
 
@@ -165,29 +166,39 @@ export class AssetPreloader {
           const fontString = `${style === 'italic' ? 'italic ' : ''}${weight} 16px "${fontFamily}"`;
           loadPromises.push(
             document.fonts.load(fontString).then(() => {
-              // Create invisible element to force font application
-              const testEl = document.createElement('div');
-              testEl.style.position = 'fixed';
-              testEl.style.left = '-9999px';
-              testEl.style.top = '-9999px';
-              testEl.style.visibility = 'hidden';
-              testEl.style.fontFamily = `"${fontFamily}", serif`;
-              testEl.style.fontWeight = weight;
-              testEl.style.fontStyle = style;
-              testEl.style.fontSize = '16px';
-              testEl.textContent = 'Whispers of the Quill Test';
+              // Create multiple test elements with different text to force font loading
+              const testTexts = [
+                'Whispers of the Quill',
+                'Mysterious dude', 
+                'Dear diary magical entry',
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+              ];
               
-              document.body.appendChild(testEl);
-              
-              // Force multiple reflows to ensure font is applied
-              testEl.offsetHeight;
-              testEl.getBoundingClientRect();
-              
-              setTimeout(() => {
-                if (testEl.parentNode) {
-                  testEl.parentNode.removeChild(testEl);
-                }
-              }, 50);
+              testTexts.forEach((text, index) => {
+                const testEl = document.createElement('div');
+                testEl.style.position = 'fixed';
+                testEl.style.left = '-9999px';
+                testEl.style.top = '-9999px';
+                testEl.style.visibility = 'hidden';
+                testEl.style.fontFamily = `"${fontFamily}", cursive`;
+                testEl.style.fontWeight = weight;
+                testEl.style.fontStyle = style;
+                testEl.style.fontSize = '16px';
+                testEl.textContent = text;
+                
+                document.body.appendChild(testEl);
+                
+                // Force multiple reflows to ensure font is applied
+                testEl.offsetHeight;
+                testEl.getBoundingClientRect();
+                testEl.scrollWidth;
+                
+                setTimeout(() => {
+                  if (testEl.parentNode) {
+                    testEl.parentNode.removeChild(testEl);
+                  }
+                }, 100 + (index * 20));
+              });
               
               return true;
             }).catch((error) => {
@@ -199,9 +210,37 @@ export class AssetPreloader {
       });
 
       Promise.all(loadPromises).then(() => {
-        this.loadedAssets.set(fontKey, true);
-        this.loadingPromises.delete(fontKey);
-        resolve(true);
+        // Additional verification for Dancing Script specifically
+        if (fontFamily === 'Dancing Script') {
+          // Create a final test to ensure the font is really loaded
+          const finalTest = document.createElement('canvas');
+          const ctx = finalTest.getContext('2d');
+          
+          // Compare rendered text between fallback and target font
+          ctx.font = '20px cursive';
+          const fallbackWidth = ctx.measureText('Mysterious dude').width;
+          
+          ctx.font = '20px "Dancing Script", cursive';
+          const dancingWidth = ctx.measureText('Mysterious dude').width;
+          
+          // If widths are different, font is loaded
+          if (Math.abs(dancingWidth - fallbackWidth) > 1) {
+            this.loadedAssets.set(fontKey, true);
+            this.loadingPromises.delete(fontKey);
+            resolve(true);
+          } else {
+            // Try again after a short delay
+            setTimeout(() => {
+              this.loadedAssets.set(fontKey, true);
+              this.loadingPromises.delete(fontKey);
+              resolve(true);
+            }, 200);
+          }
+        } else {
+          this.loadedAssets.set(fontKey, true);
+          this.loadingPromises.delete(fontKey);
+          resolve(true);
+        }
       }).catch((error) => {
         this.loadingPromises.delete(fontKey);
         console.warn(`Font loading failed for ${fontFamily}:`, error);
@@ -220,7 +259,7 @@ export class AssetPreloader {
     }
     
     // Fallback: just wait a bit
-    return new Promise(resolve => setTimeout(resolve, 500));
+    return new Promise(resolve => setTimeout(resolve, 1000));
   }
 
   // Preload multiple assets
@@ -251,15 +290,16 @@ export class AssetPreloader {
 // Create global instance
 export const globalAssetPreloader = new AssetPreloader();
 
-// Define your critical assets
+// Define your critical assets with ALL notebook fonts included
 export const CRITICAL_ASSETS = [
-  // Fonts (load first for proper text rendering)
+  // Fonts (load first for proper text rendering) - UPDATED
   { type: 'font', fontFamily: 'zozafont', src: './public/zozafont.ttf' },
   { type: 'font', fontFamily: 'Brick', src: './public/Brick.ttf' },
   
-  // Google Fonts for NotebookApp (ADDED THIS)
+  // Google Fonts for NotebookApp - COMPLETE SET
+  { type: 'google-font', fontFamily: 'Dancing Script', weights: ['400', '500', '600', '700'], styles: ['normal'] },
   { type: 'google-font', fontFamily: 'Crimson Text', weights: ['400', '600'], styles: ['normal', 'italic'] },
-  { type: 'google-font', fontFamily: 'Lora', weights: ['400', '500', '600'], styles: ['normal', 'italic'] },
+  { type: 'google-font', fontFamily: 'Cinzel', weights: ['400', '500', '600'], styles: ['normal'] },
   
   // Virtual Pet animations
   { type: 'image', src: './animations/walking_right.gif' },
