@@ -8,26 +8,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- HIGHEST PRIORITY: zozafont preload -->
+    <!-- zozafont preload -->
     <link rel="preload" href="./public/zozafont.ttf" as="font" type="font/ttf" crossorigin>
     <link rel="preload" href="./public/Brick.ttf" as="font" type="font/ttf" crossorigin>
     
-    <!-- CRITICAL: Load ALL Notebook App Google Fonts WITHOUT font-display=swap to prevent font delay -->
+    <!-- notebook fonts-->
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;500;600&display=block" rel="stylesheet">
     
-    <!-- Force immediate font loading with CSS -->
     <style>
-      /* Force zozafont to load immediately */
       @font-face {
         font-family: 'zozafont';
         src: url('./public/zozafont.ttf') format('truetype');
         font-display: block;
       }
-      
-      /* Force Google Fonts to load immediately */
+     
       @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Cinzel:wght@400;500;600&display=block');
       
-      /* Force zozafont to load with invisible text - HIGHEST PRIORITY */
       html::before {
         content: 'zozOS TIME TO LOG IN?';
         font-family: 'zozafont', monospace;
@@ -39,7 +35,6 @@
         font-weight: bold;
       }
       
-      /* Force font preload with invisible text using ALL notebook fonts */
       body::before {
         content: 'Whispers of the Quill Dear diary magical entry Mysterious dude';
         font-family: 'Dancing Script', cursive;
@@ -60,7 +55,6 @@
         visibility: hidden;
       }
 
-      /* Additional preload for Cinzel font */
       html::after {
         content: 'CLOCK Menu Applications';
         font-family: 'Cinzel', serif;
@@ -71,7 +65,6 @@
         visibility: hidden;
       }
 
-      /* Dancing Script additional weights and more text samples */
       head::before {
         content: 'Mysterious dude Menu My Collected Thoughts Dear diary';
         font-family: 'Dancing Script', cursive;
@@ -82,7 +75,6 @@
         visibility: hidden;
       }
       
-      /* Additional zozafont samples */
       head::after {
         content: 'zozOS AUTUMN OS LOADING';
         font-family: 'zozafont', monospace;
@@ -95,30 +87,30 @@
       }
     </style>
 
-    <!-- Critical Virtual Pet Animations (highest priority) -->
+    <!-- preloading animations -->
     <link rel="preload" href="./animations/walking_right.gif" as="image">
     <link rel="preload" href="./animations/walking_left.gif" as="image">
     <link rel="preload" href="./animations/click_right.gif" as="image">
     <link rel="preload" href="./animations/click-left.gif" as="image">
     <link rel="preload" href="./animations/drag.png" as="image">
 
-    <!-- Critical Audio Files -->
+    <!-- audio files -->
     <link rel="preload" href="./click.mp3" as="audio">
     <link rel="preload" href="./flip.mp3" as="audio">
     <link rel="preload" href="./keyboard.mp3" as="audio">
     <link rel="preload" href="./keyboardog.mp3" as="audio">
 
-    <!-- Character Images (for apps) -->
+    <!-- character images -->
     <link rel="preload" href="./assets/kaoru2.gif" as="image">
     <link rel="preload" href="./assets/kaoru.gif" as="image">
     <link rel="preload" href="./assets/hehe.gif" as="image">
     <link rel="preload" href="./assets/silly.jpg" as="image">
     <link rel="preload" href="./assets/kaoruuu.gif" as="image">
 
-    <!-- Desktop Background -->
+    <!-- wallpaper-->
     <link rel="preload" href="./assets/desktop12.jpg" as="image">
 
-    <!-- App Icons -->
+    <!-- icons-->
     <link rel="preload" href="./assets/calculator.png" as="image">
     <link rel="preload" href="./assets/music.png" as="image">
     <link rel="preload" href="./assets/weather.png" as="image">
@@ -134,40 +126,40 @@
     <link rel="preload" href="./assets/img.png" as="image">
     <link rel="preload" href="./assets/txt.png" as="image">
 
-    <!-- Profile Images -->
+    <!-- pfp -->
     <link rel="preload" href="./caelus.jpg" as="image">
     <link rel="preload" href="./assets/pfp.jpg" as="image">
 
-    <!-- Game Assets (Leaves Game) -->
+    <!-- game assets-->
     <link rel="preload" href="./hehe/basket.png" as="image">
     <link rel="preload" href="./hehe/leaf-1.png" as="image">
     <link rel="preload" href="./hehe/leaf-2.png" as="image">
     <link rel="preload" href="./hehe/leaf-3.png" as="image">
 
-    <!-- Music Player Album Covers -->
+    <!-- album covers-->
     <link rel="preload" href="./albums/1.jpg" as="image">
     <link rel="preload" href="./albums/2.jpg" as="image">
     <link rel="preload" href="./albums/3.jfif" as="image">
     <link rel="preload" href="./albums/4.jpg" as="image">
     <link rel="preload" href="./albums/5.jpg" as="image">
 
-    <!-- Game Audio Files -->
+    <!-- game audio files -->
     <link rel="preload" href="./hehe/catch2.mp3" as="audio">
     <link rel="preload" href="./hehe/home-music.mp3" as="audio">
     <link rel="preload" href="./hehe/game-music.mp3" as="audio">
     <link rel="preload" href="./hehe/clickfr.mp3" as="audio">
     <link rel="preload" href="./hehe/eat.mp3" as="audio">
 
-    <!-- Memory Game Audio -->
+    <!-- memory game's items -->
     <link rel="preload" href="./memorygame-music.mp3" as="audio">
     <link rel="preload" href="./cardflip.mp3" as="audio">
 
-    <!-- Additional App-Specific Images -->
+    <!-- extras-->
     <link rel="preload" href="./images/img-1.png" as="image">
     <link rel="preload" href="./images/img-2.png" as="image">
     <link rel="preload" href="./images/img-3.jpg" as="image">
 
-    <!-- Weather App Background Music -->
+    <!-- bg-->
     <link rel="preload" href="./calm-music.mp3" as="audio">
     
     <style>

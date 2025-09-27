@@ -1,12 +1,11 @@
 /* eslint-disable no-unused-vars */
-// AssetPreloader.js
 export class AssetPreloader {
   constructor() {
     this.loadedAssets = new Map();
     this.loadingPromises = new Map();
   }
 
-  // Preload images
+  // preloading images
   preloadImage(src) {
     if (this.loadedAssets.has(src)) {
       return Promise.resolve(this.loadedAssets.get(src));
@@ -34,7 +33,7 @@ export class AssetPreloader {
     return promise;
   }
 
-  // Preload audio
+  // preloading audio
   preloadAudio(src) {
     if (this.loadedAssets.has(src)) {
       return Promise.resolve(this.loadedAssets.get(src));
@@ -63,7 +62,7 @@ export class AssetPreloader {
     return promise;
   }
 
-  // Enhanced preload font method with specific zozafont handling
+  // preloading zozafont
   preloadFont(fontFamily, src, descriptors = {}) {
     const fontKey = `${fontFamily}-${src}`;
     
@@ -81,7 +80,6 @@ export class AssetPreloader {
         font.load().then(() => {
           document.fonts.add(font);
           
-          // Additional verification for zozafont specifically
           if (fontFamily === 'zozafont') {
             const testTexts = ['zozOS', 'TIME TO LOG IN?', 'AUTUMN OS'];
             
@@ -98,7 +96,6 @@ export class AssetPreloader {
               
               document.body.appendChild(testEl);
               
-              // Force multiple reflows
               testEl.offsetHeight;
               testEl.getBoundingClientRect();
               testEl.scrollWidth;
@@ -119,7 +116,6 @@ export class AssetPreloader {
           reject(new Error(`Failed to load font: ${fontFamily} from ${src}`));
         });
       } else {
-        // Fallback for older browsers
         const style = document.createElement('style');
         style.textContent = `
           @font-face {
@@ -132,7 +128,6 @@ export class AssetPreloader {
         `;
         document.head.appendChild(style);
         
-        // Enhanced font loading detection
         const testText = fontFamily === 'zozafont' ? 'zozOS' : 'BESbswy';
         const testSize = '64px';
         const fallbackFont = 'monospace';
@@ -146,7 +141,7 @@ export class AssetPreloader {
         context.font = `${testSize} "${fontFamily}", ${fallbackFont}`;
         
         let attempts = 0;
-        const maxAttempts = 100; // 5 seconds max
+        const maxAttempts = 100; 
         
         const checkFont = () => {
           attempts++;
@@ -161,7 +156,6 @@ export class AssetPreloader {
           }
         };
         
-        // Start checking after a brief delay
         setTimeout(checkFont, 100);
       }
     });
@@ -170,7 +164,6 @@ export class AssetPreloader {
     return promise;
   }
 
-  // Enhanced Google Fonts preloader with better Dancing Script handling
   preloadGoogleFont(fontFamily, weights = ['400'], styles = ['normal']) {
     const fontKey = `google-${fontFamily}`;
     
@@ -183,7 +176,6 @@ export class AssetPreloader {
     }
 
     const promise = new Promise((resolve, reject) => {
-      // Wait for document.fonts to be available
       if (!document.fonts) {
         setTimeout(() => resolve(true), 1000);
         return;
@@ -191,13 +183,11 @@ export class AssetPreloader {
 
       const loadPromises = [];
       
-      // Force load each weight and style combination
       weights.forEach(weight => {
         styles.forEach(style => {
           const fontString = `${style === 'italic' ? 'italic ' : ''}${weight} 16px "${fontFamily}"`;
           loadPromises.push(
             document.fonts.load(fontString).then(() => {
-              // Create multiple test elements with different text to force font loading
               const testTexts = [
                 'Whispers of the Quill',
                 'Mysterious dude', 
@@ -219,7 +209,6 @@ export class AssetPreloader {
                 
                 document.body.appendChild(testEl);
                 
-                // Force multiple reflows to ensure font is applied
                 testEl.offsetHeight;
                 testEl.getBoundingClientRect();
                 testEl.scrollWidth;
@@ -241,26 +230,21 @@ export class AssetPreloader {
       });
 
       Promise.all(loadPromises).then(() => {
-        // Additional verification for Dancing Script specifically
         if (fontFamily === 'Dancing Script') {
-          // Create a final test to ensure the font is really loaded
           const finalTest = document.createElement('canvas');
           const ctx = finalTest.getContext('2d');
           
-          // Compare rendered text between fallback and target font
           ctx.font = '20px cursive';
           const fallbackWidth = ctx.measureText('Mysterious dude').width;
           
           ctx.font = '20px "Dancing Script", cursive';
           const dancingWidth = ctx.measureText('Mysterious dude').width;
           
-          // If widths are different, font is loaded
           if (Math.abs(dancingWidth - fallbackWidth) > 1) {
             this.loadedAssets.set(fontKey, true);
             this.loadingPromises.delete(fontKey);
             resolve(true);
           } else {
-            // Try again after a short delay
             setTimeout(() => {
               this.loadedAssets.set(fontKey, true);
               this.loadingPromises.delete(fontKey);
@@ -275,7 +259,7 @@ export class AssetPreloader {
       }).catch((error) => {
         this.loadingPromises.delete(fontKey);
         console.warn(`Font loading failed for ${fontFamily}:`, error);
-        resolve(true); // Resolve anyway to not block loading
+        resolve(true); 
       });
     });
 
@@ -283,17 +267,15 @@ export class AssetPreloader {
     return promise;
   }
 
-  // Wait for all fonts to be ready
   waitForFonts() {
     if (document.fonts && document.fonts.ready) {
       return document.fonts.ready;
     }
     
-    // Fallback: just wait a bit
     return new Promise(resolve => setTimeout(resolve, 1000));
   }
 
-  // Preload multiple assets
+  // preloading multiple assets
   async preloadAssets(assets) {
     const promises = assets.map(asset => {
       if (asset.type === 'image') {
@@ -318,39 +300,32 @@ export class AssetPreloader {
   }
 }
 
-// Create global instance
+// global instance
 export const globalAssetPreloader = new AssetPreloader();
 
-// Define your critical assets with ALL fonts included
 export const CRITICAL_ASSETS = [
-  // Fonts (load first for proper text rendering) - UPDATED
   { type: 'font', fontFamily: 'zozafont', src: './public/zozafont.ttf' },
   { type: 'font', fontFamily: 'Brick', src: './public/Brick.ttf' },
   
-  // Google Fonts for NotebookApp - COMPLETE SET
   { type: 'google-font', fontFamily: 'Dancing Script', weights: ['400', '500', '600', '700'], styles: ['normal'] },
   { type: 'google-font', fontFamily: 'Crimson Text', weights: ['400', '600'], styles: ['normal', 'italic'] },
   { type: 'google-font', fontFamily: 'Cinzel', weights: ['400', '500', '600'], styles: ['normal'] },
   
-  // Virtual Pet animations
   { type: 'image', src: './animations/walking_right.gif' },
   { type: 'image', src: './animations/walking_left.gif' },
   { type: 'image', src: './animations/click_right.gif' },
   { type: 'image', src: './animations/click-left.gif' },
   { type: 'image', src: './animations/drag.png' },
   
-  // Character images
   { type: 'image', src: './assets/kaoru2.gif' },
   { type: 'image', src: './assets/kaoru.gif' },
   { type: 'image', src: './assets/hehe.gif' },
   { type: 'image', src: './assets/silly.jpg' },
   
-  // Audio files
   { type: 'audio', src: './click.mp3' },
   { type: 'audio', src: './flip.mp3' },
   { type: 'audio', src: './keyboard.mp3' },
   
-  // Desktop and app icons
   { type: 'image', src: './assets/desktop12.jpg' },
   { type: 'image', src: './assets/calculator.png' },
   { type: 'image', src: './assets/music.png' },
@@ -368,7 +343,6 @@ export const CRITICAL_ASSETS = [
   { type: 'image', src: './assets/txt.png' }
 ];
 
-// Music player assets (load separately as they're larger)
 export const MUSIC_ASSETS = [
   { type: 'image', src: './albums/1.jpg' },
   { type: 'image', src: './albums/2.jpg' },
@@ -377,7 +351,6 @@ export const MUSIC_ASSETS = [
   { type: 'image', src: './albums/5.jpg' }
 ];
 
-// Game assets (load when needed)
 export const GAME_ASSETS = [
   { type: 'image', src: './hehe/basket.png' },
   { type: 'image', src: './hehe/leaf-1.png' },

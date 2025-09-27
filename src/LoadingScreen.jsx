@@ -15,20 +15,19 @@ function LoadingScreen({ onLoadingComplete }) {
         'Loading desktop assets...',
         'Preparing applications...',
         'Loading fonts...',
-        'Preloading notebook fonts...',
+        'oh im crying as im making this',
         'Loading zozafont...',
         'Almost ready...',
         'please bare with me..',
-        'oh im crying as im making this',
         'pure pain..'
       ];
 
       try {
-        // Load assets with progress tracking
+        // asset loading
         let loadedCount = 0;
         const totalAssets = CRITICAL_ASSETS.length + 3; // +3 for additional font loading phases
 
-        // Update loading text periodically
+        // loading text while loading
         const textInterval = setInterval(() => {
           if (isMounted) {
             const textIndex = Math.floor((loadedCount / totalAssets) * loadingTexts.length);
@@ -36,7 +35,7 @@ function LoadingScreen({ onLoadingComplete }) {
           }
         }, 800);
 
-        // Load assets one by one for better progress tracking
+        
         for (let i = 0; i < CRITICAL_ASSETS.length; i++) {
           if (!isMounted) break;
 
@@ -63,12 +62,12 @@ function LoadingScreen({ onLoadingComplete }) {
           }
         }
 
-        // Special focus on zozafont loading for welcome screen
+        // my font loading
         if (isMounted) {
           setCurrentAsset('zozafont');
           setLoadingText('Loading zozafont...');
           
-          // Create test elements to force zozafont to load properly
+          // testing
           const zozoTestEl = document.createElement('div');
           zozoTestEl.style.position = 'fixed';
           zozoTestEl.style.left = '-9999px';
@@ -81,11 +80,10 @@ function LoadingScreen({ onLoadingComplete }) {
           
           document.body.appendChild(zozoTestEl);
           
-          // Force reflow
+          // forcing
           zozoTestEl.offsetHeight;
           zozoTestEl.getBoundingClientRect();
-          
-          // Canvas verification for zozafont
+      
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
           
@@ -95,31 +93,28 @@ function LoadingScreen({ onLoadingComplete }) {
           ctx.font = '64px zozafont, monospace';
           const zozoWidth = ctx.measureText('zozOS').width;
           
-          // If widths are too similar, wait a bit more
           if (Math.abs(zozoWidth - fallbackWidth) < 5) {
             await new Promise(resolve => setTimeout(resolve, 400));
           }
           
-          // Clean up test element
+          // remove testing
           setTimeout(() => {
             if (zozoTestEl.parentNode) {
               zozoTestEl.parentNode.removeChild(zozoTestEl);
             }
           }, 200);
           
-          // Wait for zozafont to be properly loaded
+          // load properly MAN
           await new Promise(resolve => setTimeout(resolve, 300));
           
           loadedCount++;
           setProgress((loadedCount / totalAssets) * 100);
         }
 
-        // Special focus on Dancing Script font loading
         if (isMounted) {
           setCurrentAsset('Dancing Script font');
           setLoadingText('Loading Dancing Script font...');
           
-          // Create test elements to force Dancing Script to load properly
           const testTexts = [
             'Whispers of the Quill',
             'Mysterious dude', 
@@ -139,7 +134,6 @@ function LoadingScreen({ onLoadingComplete }) {
             
             document.body.appendChild(testEl);
             
-            // Force reflow
             testEl.offsetHeight;
             testEl.getBoundingClientRect();
             
@@ -150,49 +144,41 @@ function LoadingScreen({ onLoadingComplete }) {
             }, 100 + (index * 50));
           });
           
-          // Wait for Dancing Script to be properly loaded
           await new Promise(resolve => setTimeout(resolve, 500));
           
           loadedCount++;
           setProgress((loadedCount / totalAssets) * 100);
         }
 
-        // Wait for all fonts to be ready
         if (isMounted) {
           setCurrentAsset('system fonts');
           setLoadingText('Finalizing font loading...');
           
           try {
-            // Wait for document fonts to be ready
             if (document.fonts && document.fonts.ready) {
               await document.fonts.ready;
             }
             
-            // Additional verification that both key fonts are loaded
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Test zozafont loading
             ctx.font = '64px monospace';
             const monoWidth = ctx.measureText('zozOS').width;
             
             ctx.font = '64px zozafont, monospace';
             const zozoWidth = ctx.measureText('zozOS').width;
             
-            // Test Dancing Script loading
             ctx.font = '20px cursive';
             const cursiveWidth = ctx.measureText('Mysterious dude').width;
             
             ctx.font = '20px "Dancing Script", cursive';
             const dancingWidth = ctx.measureText('Mysterious dude').width;
             
-            // If either font isn't loaded properly, wait longer
             if (Math.abs(zozoWidth - monoWidth) < 2 || Math.abs(dancingWidth - cursiveWidth) < 1) {
               console.warn('Key fonts may not be fully loaded, waiting...');
               await new Promise(resolve => setTimeout(resolve, 800));
             }
-            
-            // Additional wait for all fonts to settle
+          
             await new Promise(resolve => setTimeout(resolve, 400));
             
           } catch (error) {
@@ -205,12 +191,10 @@ function LoadingScreen({ onLoadingComplete }) {
 
         clearInterval(textInterval);
 
-        // Show completion message
         if (isMounted) {
           setLoadingText('Welcome to zozOS!');
           setCurrentAsset('');
           
-          // Brief pause before transitioning
           setTimeout(() => {
             if (isMounted && onLoadingComplete) {
               onLoadingComplete();
@@ -221,7 +205,7 @@ function LoadingScreen({ onLoadingComplete }) {
       } catch (error) {
         console.error('Loading failed:', error);
         if (isMounted && onLoadingComplete) {
-          onLoadingComplete(); // Continue anyway
+          onLoadingComplete(); 
         }
       }
     };
@@ -241,12 +225,12 @@ function LoadingScreen({ onLoadingComplete }) {
       }}
     >
       <div className="text-center">
-        {/* Loading status */}
+        {/* status */}
         <div className="text-amber-100 text-xl mb-8 font-mono">
           {loadingText}
         </div>
 
-        {/* Progress bar - matching the login screen style exactly */}
+        {/* progress bar */}
         <div className="w-96 h-6 bg-amber-900 border-2" style={{ 
           borderColor: '#d7ccc8 #3e2723 #3e2723 #d7ccc8',
           borderStyle: 'solid'
@@ -257,7 +241,7 @@ function LoadingScreen({ onLoadingComplete }) {
           />
         </div>
 
-        {/* Progress text */}
+        {/*  text */}
         <div className="text-amber-200 text-sm mt-6 font-mono">
           {Math.round(progress)}%{currentAsset && ` • ${currentAsset}`}
         </div>
