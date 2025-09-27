@@ -220,6 +220,12 @@ const NotebookApp = () => {
 
   const showNewNote = () => {
     playClickSound();
+    
+    // If auto-save is enabled and there's unsaved content, save it first
+    if (autoSaveEnabled && editorContent.trim() && currentNoteId === null) {
+      saveCurrentNoteImmediately();
+    }
+    
     setCurrentMainScreen('writing');
     newNote();
     
@@ -262,6 +268,39 @@ const NotebookApp = () => {
   // note management
   const generateId = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  };
+
+  // Save current note immediately (for auto-save scenarios)
+  const saveCurrentNoteImmediately = () => {
+    const content = editorContent.trim();
+    if (!content) return;
+
+    const title = content.split('\n')[0].substring(0, 50) || 'Untitled Note';
+    const now = new Date();
+
+    let updatedNotes;
+    if (currentNoteId) {
+      // update existing note
+      updatedNotes = notes.map(note => 
+        note.id === currentNoteId 
+          ? {...note, title, content, lastModified: now.toISOString()}
+          : note
+      );
+    } else {
+      // create new note
+      const note = {
+        id: generateId(),
+        title: title,
+        content: content,
+        date: now.toISOString(),
+        lastModified: now.toISOString()
+      };
+      updatedNotes = [note, ...notes];
+      setCurrentNoteId(note.id);
+    }
+
+    setNotes(updatedNotes);
+    showSaveIndicator();
   };
 
   const newNote = () => {
@@ -318,7 +357,13 @@ const NotebookApp = () => {
   useEffect(() => {
     if (!autoSaveEnabled || !editorContent.trim()) return;
 
-    const timeoutId = setTimeout(() => {
+    // Clear any existing timeout
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    // Set a new timeout for auto-saving
+    autoSaveTimeoutRef.current = setTimeout(() => {
       const content = editorContent.trim();
       if (content) {
         const title = content.split('\n')[0].substring(0, 50) || 'Untitled Note';
@@ -346,9 +391,14 @@ const NotebookApp = () => {
         setNotes(updatedNotes);
         showSaveIndicator();
       }
-    }, 2000);
+    }, 1000); // Reduced from 2000ms to 1000ms for faster auto-save
 
-    return () => clearTimeout(timeoutId);
+    // Cleanup function
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
   }, [editorContent, autoSaveEnabled, currentNoteId, notes]);
 
   const toggleAutoSave = () => {
