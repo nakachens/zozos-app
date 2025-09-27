@@ -24,33 +24,126 @@ const NotebookApp = () => {
   const autoSaveTimeoutRef = useRef(null);
   const editorRef = useRef(null);
   const clickSoundRef = useRef(null); 
+  const saveIntervalRef = useRef(null);
 
-  // setup app
+  // Helper function to safely use localStorage
+  const safeLocalStorage = {
+    getItem: (key) => {
+      try {
+        return localStorage.getItem(key);
+      } catch (e) {
+        console.warn(`Could not get ${key} from localStorage:`, e);
+        return null;
+      }
+    },
+    setItem: (key, value) => {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (e) {
+        console.warn(`Could not save ${key} to localStorage:`, e);
+        return false;
+      }
+    }
+  };
+
+  // Load notes from storage
+  const loadNotesFromStorage = () => {
+    const saved = safeLocalStorage.getItem('journalNotes');
+    if (saved) {
+      try {
+        const parsedNotes = JSON.parse(saved);
+        setNotes(parsedNotes);
+      } catch (e) {
+        console.warn('Could not parse notes from storage:', e);
+      }
+    }
+  };
+
+  // Save notes to storage
+  const saveNotesToStorage = () => {
+    safeLocalStorage.setItem('journalNotes', JSON.stringify(notes));
+  };
+
+  // Save current state to storage (including unsaved content)
+  const saveCurrentState = () => {
+    const currentState = {
+      notes: notes,
+      currentNoteId: currentNoteId,
+      editorContent: editorContent,
+      theme: theme,
+      autoSaveEnabled: autoSaveEnabled,
+      currentScreen: currentScreen,
+      currentMainScreen: currentMainScreen
+    };
+    safeLocalStorage.setItem('journalAppState', JSON.stringify(currentState));
+  };
+
+  // Load current state from storage
+  const loadCurrentState = () => {
+    const saved = safeLocalStorage.getItem('journalAppState');
+    if (saved) {
+      try {
+        const parsedState = JSON.parse(saved);
+        setNotes(parsedState.notes || []);
+        setCurrentNoteId(parsedState.currentNoteId || null);
+        setEditorContent(parsedState.editorContent || '');
+        setTheme(parsedState.theme || 'light');
+        setAutoSaveEnabled(parsedState.autoSaveEnabled || false);
+        setCurrentScreen(parsedState.currentScreen || 'start');
+        setCurrentMainScreen(parsedState.currentMainScreen || 'myNotes');
+      } catch (e) {
+        console.warn('Could not parse app state from storage:', e);
+        // Fallback to loading just notes
+        loadNotesFromStorage();
+      }
+    } else {
+      // Fallback to loading just notes
+      loadNotesFromStorage();
+    }
+  };
+
+  // Setup app - load state on mount
   useEffect(() => {
-    loadNotesFromStorage();
+    loadCurrentState();
     
-    // use localStorage properly - check for browser support
-    try {
-      const savedTheme = localStorage.getItem('journalTheme') ? JSON.parse(localStorage.getItem('journalTheme')) : 'light';
-      setTheme(savedTheme);
-      
-      const savedAutoSave = localStorage.getItem('journalAutoSave') ? JSON.parse(localStorage.getItem('journalAutoSave')) : false;
-      setAutoSaveEnabled(savedAutoSave);
-    } catch (e) {
-      console.warn('localStorage not available, using defaults');
-    }
-    
-    const appContainer = document.querySelector('.notebook-app-wrapper');
-    if (appContainer) {
-      appContainer.classList.toggle('dark-theme', theme === 'dark');
-    }
-
-    // setup click sound
+    // Setup click sound
     clickSoundRef.current = new Audio('/click.mp3');
     if (clickSoundRef.current) {
       clickSoundRef.current.volume = 0.3;
     }
+
+    // Set up periodic saving every 10 seconds
+    saveIntervalRef.current = setInterval(() => {
+      saveCurrentState();
+    }, 10000);
+
+    return () => {
+      if (saveIntervalRef.current) {
+        clearInterval(saveIntervalRef.current);
+      }
+    };
   }, []);
+
+  // Save state whenever important data changes
+  useEffect(() => {
+    saveCurrentState();
+  }, [notes, currentNoteId, editorContent, theme, autoSaveEnabled, currentScreen, currentMainScreen]);
+
+  // Save state before component unmounts (app closes)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveCurrentState();
+    };
+
+    // Save state when component unmounts or app closes
+    return () => {
+      saveCurrentState();
+      if (saveIntervalRef.current) {
+        clearInterval(saveIntervalRef.current);
+      }
+    };
+  }, [notes, currentNoteId, editorContent, theme, autoSaveEnabled, currentScreen, currentMainScreen]);
 
   // function to play click sound
   const playClickSound = () => {
@@ -91,13 +184,12 @@ const NotebookApp = () => {
   const handleDeleteConfirm = () => {
     playClickSound();
     if (noteToDelete) {
-      setNotes(prevNotes => prevNotes.filter(note => note.id !== noteToDelete));
+      const updatedNotes = notes.filter(note => note.id !== noteToDelete);
+      setNotes(updatedNotes);
       
       if (currentNoteId === noteToDelete) {
         newNote();
       }
-      
-      saveNotesToStorage();
     }
     setShowDeletePopup(false);
     setNoteToDelete(null);
@@ -188,14 +280,13 @@ const NotebookApp = () => {
     const title = content.split('\n')[0].substring(0, 50) || 'Untitled Note';
     const now = new Date();
 
+    let updatedNotes;
     if (currentNoteId) {
       // update existing note
-      setNotes(prevNotes => 
-        prevNotes.map(note => 
-          note.id === currentNoteId 
-            ? {...note, title, content, lastModified: now.toISOString()}
-            : note
-        )
+      updatedNotes = notes.map(note => 
+        note.id === currentNoteId 
+          ? {...note, title, content, lastModified: now.toISOString()}
+          : note
       );
     } else {
       // create new note
@@ -206,11 +297,11 @@ const NotebookApp = () => {
         date: now.toISOString(),
         lastModified: now.toISOString()
       };
-      setNotes(prevNotes => [note, ...prevNotes]);
+      updatedNotes = [note, ...notes];
       setCurrentNoteId(note.id);
     }
 
-    saveNotesToStorage();
+    setNotes(updatedNotes);
     showSaveIndicator();
   };
 
@@ -233,42 +324,37 @@ const NotebookApp = () => {
         const title = content.split('\n')[0].substring(0, 50) || 'Untitled Note';
         const now = new Date();
 
-        setNotes(prevNotes => {
-          if (currentNoteId) {
-            return prevNotes.map(note => 
-              note.id === currentNoteId 
-                ? {...note, title, content, lastModified: now.toISOString()}
-                : note
-            );
-          } else {
-            const note = {
-              id: generateId(),
-              title: title,
-              content: content,
-              date: now.toISOString(),
-              lastModified: now.toISOString()
-            };
-            setCurrentNoteId(note.id);
-            return [note, ...prevNotes];
-          }
-        });
-        
+        let updatedNotes;
+        if (currentNoteId) {
+          updatedNotes = notes.map(note => 
+            note.id === currentNoteId 
+              ? {...note, title, content, lastModified: now.toISOString()}
+              : note
+          );
+        } else {
+          const note = {
+            id: generateId(),
+            title: title,
+            content: content,
+            date: now.toISOString(),
+            lastModified: now.toISOString()
+          };
+          setCurrentNoteId(note.id);
+          updatedNotes = [note, ...notes];
+        }
+
+        setNotes(updatedNotes);
         showSaveIndicator();
       }
     }, 2000);
 
     return () => clearTimeout(timeoutId);
-  }, [editorContent, autoSaveEnabled, currentNoteId]);
+  }, [editorContent, autoSaveEnabled, currentNoteId, notes]);
 
   const toggleAutoSave = () => {
     playClickSound();
     const newAutoSaveEnabled = !autoSaveEnabled;
     setAutoSaveEnabled(newAutoSaveEnabled);
-    try {
-      localStorage.setItem('journalAutoSave', JSON.stringify(newAutoSaveEnabled));
-    } catch (e) {
-      console.warn('Could not save auto-save preference');
-    }
   };
 
   const loadNote = (noteId) => {
@@ -323,11 +409,6 @@ const NotebookApp = () => {
     playClickSound();
     const newTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
-    try {
-      localStorage.setItem('journalTheme', JSON.stringify(newTheme));
-    } catch (e) {
-      console.warn('Could not save theme preference');
-    }
   };
 
   const updateStats = () => {
@@ -368,33 +449,9 @@ const NotebookApp = () => {
     });
   };
 
-  const loadNotesFromStorage = () => {
-    try {
-      const saved = localStorage.getItem('journalNotes');
-      if (saved) {
-        setNotes(JSON.parse(saved));
-      }
-    } catch (e) {
-      console.warn('Could not load notes from storage');
-    }
-  };
-
-  const saveNotesToStorage = () => {
-    try {
-      localStorage.setItem('journalNotes', JSON.stringify(notes));
-    } catch (e) {
-      console.warn('Could not save notes to storage');
-    }
-  };
-
   const handleEditorChange = (e) => {
     const newContent = e.target.value;
     setEditorContent(newContent);
-    
-    // trigger auto-save if enabled
-    if (autoSaveEnabled) {
-      // The useEffect will handle the auto-save timing
-    }
   };
 
   // keyboard shortcuts
