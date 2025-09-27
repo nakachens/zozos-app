@@ -447,7 +447,7 @@ const VirtualPet = ({ onPetClick }) => {
             </button>
           )}
           <div className="px-4 py-1 text-xs text-amber-700">
-            {isInBackground ? 'Pet is behind apps' : 'Pet is in front of apps'}
+            {isInBackground ? 'Hakuchin is behind apps' : 'Hakuchin is in front of apps'}
           </div>
         </div>
       )}
