@@ -16,6 +16,7 @@ function LoadingScreen({ onLoadingComplete }) {
         'Preparing applications...',
         'Loading fonts...',
         'Preloading notebook fonts...',
+        'Loading zozafont...',
         'Almost ready...',
         'please bare with me..',
         'oh im crying as im making this',
@@ -25,7 +26,7 @@ function LoadingScreen({ onLoadingComplete }) {
       try {
         // Load assets with progress tracking
         let loadedCount = 0;
-        const totalAssets = CRITICAL_ASSETS.length + 2; // +2 for font loading phases
+        const totalAssets = CRITICAL_ASSETS.length + 3; // +3 for additional font loading phases
 
         // Update loading text periodically
         const textInterval = setInterval(() => {
@@ -60,6 +61,57 @@ function LoadingScreen({ onLoadingComplete }) {
           if (isMounted) {
             setProgress((loadedCount / totalAssets) * 100);
           }
+        }
+
+        // Special focus on zozafont loading for welcome screen
+        if (isMounted) {
+          setCurrentAsset('zozafont');
+          setLoadingText('Loading zozafont...');
+          
+          // Create test elements to force zozafont to load properly
+          const zozoTestEl = document.createElement('div');
+          zozoTestEl.style.position = 'fixed';
+          zozoTestEl.style.left = '-9999px';
+          zozoTestEl.style.top = '-9999px';
+          zozoTestEl.style.visibility = 'hidden';
+          zozoTestEl.style.fontFamily = 'zozafont, monospace';
+          zozoTestEl.style.fontSize = '64px';
+          zozoTestEl.style.fontWeight = 'bold';
+          zozoTestEl.textContent = 'zozOS';
+          
+          document.body.appendChild(zozoTestEl);
+          
+          // Force reflow
+          zozoTestEl.offsetHeight;
+          zozoTestEl.getBoundingClientRect();
+          
+          // Canvas verification for zozafont
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          ctx.font = '64px monospace';
+          const fallbackWidth = ctx.measureText('zozOS').width;
+          
+          ctx.font = '64px zozafont, monospace';
+          const zozoWidth = ctx.measureText('zozOS').width;
+          
+          // If widths are too similar, wait a bit more
+          if (Math.abs(zozoWidth - fallbackWidth) < 5) {
+            await new Promise(resolve => setTimeout(resolve, 400));
+          }
+          
+          // Clean up test element
+          setTimeout(() => {
+            if (zozoTestEl.parentNode) {
+              zozoTestEl.parentNode.removeChild(zozoTestEl);
+            }
+          }, 200);
+          
+          // Wait for zozafont to be properly loaded
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          loadedCount++;
+          setProgress((loadedCount / totalAssets) * 100);
         }
 
         // Special focus on Dancing Script font loading
@@ -116,25 +168,32 @@ function LoadingScreen({ onLoadingComplete }) {
               await document.fonts.ready;
             }
             
-            // Additional verification that Dancing Script is loaded
+            // Additional verification that both key fonts are loaded
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
+            // Test zozafont loading
+            ctx.font = '64px monospace';
+            const monoWidth = ctx.measureText('zozOS').width;
+            
+            ctx.font = '64px zozafont, monospace';
+            const zozoWidth = ctx.measureText('zozOS').width;
+            
             // Test Dancing Script loading
             ctx.font = '20px cursive';
-            const fallbackWidth = ctx.measureText('Mysterious dude').width;
+            const cursiveWidth = ctx.measureText('Mysterious dude').width;
             
             ctx.font = '20px "Dancing Script", cursive';
             const dancingWidth = ctx.measureText('Mysterious dude').width;
             
-            // If they're the same, Dancing Script might not be loaded yet
-            if (Math.abs(dancingWidth - fallbackWidth) < 1) {
-              console.warn('Dancing Script may not be fully loaded, waiting...');
+            // If either font isn't loaded properly, wait longer
+            if (Math.abs(zozoWidth - monoWidth) < 2 || Math.abs(dancingWidth - cursiveWidth) < 1) {
+              console.warn('Key fonts may not be fully loaded, waiting...');
               await new Promise(resolve => setTimeout(resolve, 800));
             }
             
             // Additional wait for all fonts to settle
-            await new Promise(resolve => setTimeout(resolve, 300));
+            await new Promise(resolve => setTimeout(resolve, 400));
             
           } catch (error) {
             console.warn('Font loading check failed:', error);

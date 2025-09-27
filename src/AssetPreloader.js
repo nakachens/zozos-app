@@ -63,7 +63,7 @@ export class AssetPreloader {
     return promise;
   }
 
-  // Preload font
+  // Enhanced preload font method with specific zozafont handling
   preloadFont(fontFamily, src, descriptors = {}) {
     const fontKey = `${fontFamily}-${src}`;
     
@@ -80,6 +80,37 @@ export class AssetPreloader {
         const font = new FontFace(fontFamily, `url(${src})`, descriptors);
         font.load().then(() => {
           document.fonts.add(font);
+          
+          // Additional verification for zozafont specifically
+          if (fontFamily === 'zozafont') {
+            const testTexts = ['zozOS', 'TIME TO LOG IN?', 'AUTUMN OS'];
+            
+            testTexts.forEach((text, index) => {
+              const testEl = document.createElement('div');
+              testEl.style.position = 'fixed';
+              testEl.style.left = '-9999px';
+              testEl.style.top = '-9999px';
+              testEl.style.visibility = 'hidden';
+              testEl.style.fontFamily = `"${fontFamily}", monospace`;
+              testEl.style.fontSize = '64px';
+              testEl.style.fontWeight = 'bold';
+              testEl.textContent = text;
+              
+              document.body.appendChild(testEl);
+              
+              // Force multiple reflows
+              testEl.offsetHeight;
+              testEl.getBoundingClientRect();
+              testEl.scrollWidth;
+              
+              setTimeout(() => {
+                if (testEl.parentNode) {
+                  testEl.parentNode.removeChild(testEl);
+                }
+              }, 200 + (index * 50));
+            });
+          }
+          
           this.loadedAssets.set(fontKey, font);
           this.loadingPromises.delete(fontKey);
           resolve(font);
@@ -88,21 +119,22 @@ export class AssetPreloader {
           reject(new Error(`Failed to load font: ${fontFamily} from ${src}`));
         });
       } else {
-        // Fallback for browsers without FontFace API
+        // Fallback for older browsers
         const style = document.createElement('style');
         style.textContent = `
           @font-face {
             font-family: '${fontFamily}';
             src: url('${src}');
+            font-display: block;
             ${descriptors.weight ? `font-weight: ${descriptors.weight};` : ''}
             ${descriptors.style ? `font-style: ${descriptors.style};` : ''}
           }
         `;
         document.head.appendChild(style);
         
-        // Test if font loaded by measuring text width
-        const testText = 'BESbswy';
-        const testSize = '72px';
+        // Enhanced font loading detection
+        const testText = fontFamily === 'zozafont' ? 'zozOS' : 'BESbswy';
+        const testSize = '64px';
         const fallbackFont = 'monospace';
         
         const canvas = document.createElement('canvas');
@@ -111,11 +143,16 @@ export class AssetPreloader {
         context.font = `${testSize} ${fallbackFont}`;
         const fallbackWidth = context.measureText(testText).width;
         
-        context.font = `${testSize} ${fontFamily}, ${fallbackFont}`;
+        context.font = `${testSize} "${fontFamily}", ${fallbackFont}`;
+        
+        let attempts = 0;
+        const maxAttempts = 100; // 5 seconds max
         
         const checkFont = () => {
+          attempts++;
           const currentWidth = context.measureText(testText).width;
-          if (currentWidth !== fallbackWidth) {
+          
+          if (Math.abs(currentWidth - fallbackWidth) > 2 || attempts >= maxAttempts) {
             this.loadedAssets.set(fontKey, true);
             this.loadingPromises.delete(fontKey);
             resolve(true);
@@ -126,12 +163,6 @@ export class AssetPreloader {
         
         // Start checking after a brief delay
         setTimeout(checkFont, 100);
-        
-        // Timeout after 5 seconds
-        setTimeout(() => {
-          this.loadingPromises.delete(fontKey);
-          reject(new Error(`Font loading timeout: ${fontFamily}`));
-        }, 5000);
       }
     });
 
@@ -290,7 +321,7 @@ export class AssetPreloader {
 // Create global instance
 export const globalAssetPreloader = new AssetPreloader();
 
-// Define your critical assets with ALL notebook fonts included
+// Define your critical assets with ALL fonts included
 export const CRITICAL_ASSETS = [
   // Fonts (load first for proper text rendering) - UPDATED
   { type: 'font', fontFamily: 'zozafont', src: './public/zozafont.ttf' },
