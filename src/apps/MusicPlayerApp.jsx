@@ -16,7 +16,7 @@ class AudioManager {
     this.listeners = new Set();
     this.isRepeating = false;
     this.initialized = false;
-    this.playlist = []; // Add playlist reference to audio manager
+    this.playlist = []; 
   }
 
   // audio state changer
@@ -34,7 +34,7 @@ class AudioManager {
     if (this.initialized) return;
     
     this.initialized = true;
-    this.playlist = [...playlist]; // Store playlist in audio manager
+    this.playlist = [...playlist]; 
     const elements = [];
     
     for (let i = 0; i < playlist.length; i++) {
@@ -95,18 +95,15 @@ class AudioManager {
     }
   }
 
-  // Add method to update playlist when new songs are added
   updatePlaylist(newPlaylist) {
     this.playlist = [...newPlaylist];
     this.notify('playlistUpdated', { playlist: this.playlist });
   }
-
   // Add method to add new audio element
   addAudioElement(audio, songData) {
     this.audioElements.push(audio);
     this.playlist.push(songData);
     
-    // If this is the first song and no song is currently loaded, select it
     if (!this.currentAudioRef) {
       const newIndex = this.audioElements.length - 1;
       this.currentAudioRef = audio;
@@ -119,7 +116,6 @@ class AudioManager {
     this.notify('playlistUpdated', { playlist: this.playlist });
   }
 
-  // Get current song data
   getCurrentSong() {
     return this.playlist[this.currentSongIndex] || {};
   }
@@ -249,7 +245,7 @@ class AudioManager {
       volume: this.volume,
       isRepeating: this.isRepeating,
       hasCurrentSong: !!this.currentAudioRef,
-      currentSong: this.getCurrentSong() // Add current song to state
+      currentSong: this.getCurrentSong() // add current song to state
     };
   }
 
@@ -705,13 +701,11 @@ const handleVolumeMouseDown = (event) => {
         duration: globalAudioManager.duration
       });
     });
-    
-    // Use the new addAudioElement method instead of directly pushing
+   
     globalAudioManager.addAudioElement(audio, song);
   }
   
   if (newSongs.length > 0) {
-    // Update playlist state and sync with audio manager
     const newPlaylist = [...playlist, ...newSongs];
     setPlaylist(newPlaylist);
     globalAudioManager.updatePlaylist(newPlaylist);
