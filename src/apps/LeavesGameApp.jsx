@@ -389,7 +389,7 @@ const FallingLeavesGame = () => {
     }
   }, [gameState]);
 
-  // Enhanced image preloading effect
+  // image preloading effect
   useEffect(() => {
     const preloadImages = async () => {
       const imagesToLoad = [
@@ -433,12 +433,11 @@ const FallingLeavesGame = () => {
     preloadImages();
   }, []);
 
-  // Get preloaded image source
+  // preloaded image source
   const getImageSrc = (key) => {
     return preloadedImages[key]?.src || leafImages[0]; // fallback
   };
 
-  // Get random leaf image
   const getRandomLeafImage = () => {
     const leafKeys = ['leaf1', 'leaf2', 'leaf3'];
     const randomKey = leafKeys[Math.floor(Math.random() * leafKeys.length)];
@@ -499,7 +498,7 @@ const FallingLeavesGame = () => {
       id: leafIdCounter.current++,
       x: newX,
       y: -LEAF_SIZE,
-      image: getRandomLeafImage(), // Use preloaded image
+      image: getRandomLeafImage(), // use preloaded image
       rotation: Math.random() * 360,
       rotationSpeed: (Math.random() - 0.5) * 2,
     };
@@ -676,7 +675,7 @@ const FallingLeavesGame = () => {
   }, [score, highScore]);
 
   const startGame = () => {
-    if (!imagesLoaded) return; // Don't start if images aren't loaded
+    if (!imagesLoaded) return; // don NOT start if images arent loaded
     
     playClickSound();
 
@@ -807,7 +806,7 @@ const FallingLeavesGame = () => {
       </div>
     </div>
   );
-  // Show loading screen if images aren't loaded yet
+  // loading screen if images not loaded 
   if (!imagesLoaded) {
     return (
       <div style={styles.container}>
