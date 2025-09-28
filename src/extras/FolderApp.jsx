@@ -119,22 +119,22 @@ noted. saving for future use !
 
   "hidden-secrets.txt": `Desktop Secrets & Easter Eggs hehe
 
-OKAY SO did you find all of these yet? ( à¹'â€¾Ì€â—¡â€¾Ì)âœ¨
+OKAY SO did you find all of these yet? ദ്ദി ˉ͈̀꒳ˉ͈́ )✧
 
-ð–¦¹ Hidden Features:
+⋆˚꩜｡ Hidden Features:
 - Right-click taskbar items for context menus
 - Hover animations on desktop widgets  
 - Sound effects on most interactions
 - Different app window scaling behaviors
 - Retro scanline effects in some apps
 
-ð–¦¹ Design Details:
+⋆˚꩜｡ Design Details:
 - Every border uses the autumn color scheme
 - Consistent 3D button styling throughout (i cried at this)
 - Paper texture backgrounds in text apps
 - Seasonal emoji usage everywhere (huhu)
 
-ð–¦¹ Audio Elements:
+⋆˚꩜｡ Audio Elements:
 - Click sounds for buttons
 - Card flip sounds in poetry app  
 - Background music in music player
@@ -206,7 +206,7 @@ function FolderApp({ folderType = "files", onOpenFile }) {
       {/* folder header*/}
       <div className="flex items-center justify-between p-4 border-b-2 border-amber-700">
         <div className="flex items-center space-x-2">
-          <span className="text-lg">ðŸ"</span>
+          <span className="text-lg">꩜</span>
           <h2 className="text-sm font-bold text-amber-900">
             {folderType === "files" ? "Text Files" : "Images"}
           </h2>
@@ -261,7 +261,7 @@ function FolderApp({ folderType = "files", onOpenFile }) {
                     }}
                   />
                 )}
-                <span className="text-2xl hidden">{item.type === 'txt' ? 'ðŸ"„' : 'ðŸ–¼ï¸'}</span>
+                <span className="text-2xl hidden">{item.type === 'txt' ? '꩜' : '꩜'}</span>
               </div>
               <span className="text-xs text-center text-amber-900 font-bold break-words leading-tight">
                 {item.name}
