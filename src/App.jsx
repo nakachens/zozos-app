@@ -26,16 +26,14 @@ import { FolderApp, fileContents } from './extras/FolderApp';
 import ImageViewerApp from './extras/ImageViewerApp';
 //asset finder
 const getAssetPath = (path) => {
-  // Check if we're in Electron environment
   if (window.require) {
     try {
       const { remote, ipcRenderer } = window.require('electron');
       const isDev = process.env.NODE_ENV === 'development';
       
       if (isDev) {
-        return path; // Use original path in development
+        return path; 
       } else {
-        // In production, assets are in the resources folder
         const pathModule = window.require('path');
         const appPath = remote ? remote.app.getAppPath() : process.resourcesPath;
         return pathModule.join(appPath, path.replace('./', ''));
@@ -45,8 +43,7 @@ const getAssetPath = (path) => {
     }
   }
   
-  // Fallback for web or if Electron modules unavailable
-  return path;
+  return path; // ps: this was for electron setup
 };
 
 // sound effects
@@ -2300,7 +2297,7 @@ function Desktop({ apps, onOpenApp }) {
     <div 
       className="h-full w-full relative overflow-hidden"
       style={{
-        backgroundImage: `url('./assets/desktop12.jpg')`,
+        backgroundImage: `url('./assets/kohaku.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -2734,7 +2731,7 @@ function Taskbar({ openWindows, onToggleWindow, onOpenStartMenu, isStartMenuOpen
 
 // main App comp
 export default function RetroOS() {
-  const [stage, setStage] = useState('loading'); // Change initial state to 'loading'
+  const [stage, setStage] = useState('loading'); 
   const [openWindows, setOpenWindows] = useState([]);
   const [activeWindow, setActiveWindow] = useState(null);
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
@@ -2748,7 +2745,7 @@ export default function RetroOS() {
     setStage('welcome');
   };
 
-  // Preload additional assets when needed
+  // preloading additional assets 
   const preloadMusicAssets = async () => {
     try {
       await globalAssetPreloader.preloadAssets(MUSIC_ASSETS);
@@ -2769,9 +2766,9 @@ export default function RetroOS() {
   const openApp = async (app) => {
     // Preload assets for specific apps
     if (app.id === 'music') {
-      preloadMusicAssets(); // Don't await, load in background
+      preloadMusicAssets(); 
     } else if (app.id === 'leaves') {
-      preloadGameAssets(); // Don't await, load in background
+      preloadGameAssets(); 
     }
     const existingWindow = openWindows.find(w => w.id === app.id);
     if (existingWindow) {
