@@ -552,7 +552,7 @@ function FocusGoalsWidget() {
                   className="h-full transition-all duration-300"
                   style={{ 
                     width: `${goal.progress}%`,
-                    backgroundColor: '#8b4513'
+                    backgroundColor: '#f5deb3'
                   }}
                 />
               </div>
@@ -560,7 +560,7 @@ function FocusGoalsWidget() {
                 className="widget-button w-4 h-4 text-xs border hover:opacity-90"
                 onClick={() => updateProgress(goal.id, 10)}
                 style={{ 
-                  borderColor: '#f5deb3 #8b4513 #8b4513 #f5deb3', 
+                  borderColor: '#f5deb3 #51819bff #51819bff #f5deb3', 
                   fontSize: '8px',
                   backgroundColor: 'rgba(255, 255, 255, 0.8)'
                 }}
