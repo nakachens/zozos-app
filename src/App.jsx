@@ -2574,8 +2574,8 @@ function Taskbar({ openWindows, onToggleWindow, onOpenStartMenu, isStartMenuOpen
     <>
       <div className="absolute bottom-0 left-0 right-0 h-12 border-t-4 flex items-center justify-between px-3 z-40 shadow-lg"
       style={{
-       background: 'linear-gradient(180deg, #deb887 0%, #3f87a1ff 50%, #005384ff 100%)',
-       borderColor: '#f5deb3 #3f87a1ff #3f87a1ff #f5deb3',
+       background: 'linear-gradient(180deg, #3f87a1ff 0%, #3f87a1ff 50%, #005384ff 100%)',
+       borderColor: '#7abfd8ff #3f87a1ff #3f87a1ff #7abfd8ff',
        borderStyle: 'solid',
        fontFamily: 'monospace',
        paddingLeft: '12px'
