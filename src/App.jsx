@@ -386,7 +386,7 @@ function TaskListWidget() {
            borderStyle: 'solid',
            width: '200px',
            height: '150px',
-           background: '#A9C49C'
+           background: '#7abfd8ff'
          }}>
       <div className="flex items-center mb-2 pb-1 border-b-2"
            style={{ borderColor: 'rgba(139, 69, 19, 0.3)' }}>
@@ -488,10 +488,10 @@ function FocusGoalsWidget() {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'text-blue-900';
-      case 'medium': return 'text-black-600';
-      case 'low': return 'text-green-600';
-      default: return 'text-amber-600';
+      case 'high': return 'text-teal-100';
+      case 'medium': return 'text-lime-50';
+      case 'low': return 'text-cyan-100';
+      default: return 'text-cyan-100';
     }
   };
 
@@ -519,11 +519,11 @@ function FocusGoalsWidget() {
            borderStyle: 'solid',
            width: '240px',
            height: '180px',
-           background: '#D0B0CF'
+           background: '#015380ff'
          }}>
       <div className="flex items-center mb-2 pb-1 border-b-2"
            style={{ borderColor: 'rgba(139, 69, 19, 0.3)' }}>
-        <span className="text-amber-900 font-bold text-xs">PROGRESS</span>
+        <span className="text-sky-200 font-bold text-xs">PROGRESS</span>
       </div>
 
       <div className="space-y-2 max-h-25 overflow-y-auto mb-3">
