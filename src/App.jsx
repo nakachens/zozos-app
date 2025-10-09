@@ -2374,7 +2374,7 @@ function DesktopIcon({ app, onDoubleClick }) {
         className="w-9 h-9 mb-2 filter drop-shadow-sm object-contain"
         style={{ imageRendering: 'pixelated' }}
       />
-      <span className="text-amber-900 text-xs text-center font-medium" style={{ fontFamily: 'serif' }}>
+      <span className="text-white-900 text-xs text-center font-medium" style={{ fontFamily: 'serif' }}>
         {app.name}
       </span>
     </div>
@@ -2402,13 +2402,13 @@ function StartMenu({ apps, isOpen, onOpenApp, onClose }) {
     <div className="absolute bottom-12 left-3 w-80 border-4 shadow-2xl z-50 overflow-hidden"
          style={{
            background: 'linear-gradient(145deg, #f5deb3, #deb887)',
-           borderColor: '#f5deb3 #8b4513 #8b4513 #f5deb3',
+           borderColor: '#f5deb3 #3f87a1ff #3f87a1ff #f5deb3',
            borderStyle: 'solid',
            fontFamily: 'monospace'
          }}>
       <div className="text-amber-900 p-4 text-sm font-bold flex items-center border-b-2"
            style={{ 
-             background: 'linear-gradient(90deg, #daa520 0%, #b8860b 50%, #cd853f 100%)',
+             background: 'linear-gradient(90deg, #3f87a1ff 0%, #225568ff 50%, #006360ff 100%)',
              borderColor: '#8b4513'
            }}>
         <span className="text-lg mr-3">🍂</span>
