@@ -2297,12 +2297,12 @@ function Desktop({ apps, onOpenApp }) {
     <div 
       className="h-full w-full relative overflow-hidden"
       style={{
-        backgroundImage: `url('./assets/mika.jpg')`,
+        backgroundImage: `url('./assets/wallpaper.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         background: `
-          url('./assets/mika.jpg') center/cover no-repeat,
+          url('./assets/wallpaper.jpg') center/cover no-repeat,
           linear-gradient(135deg, 
             #FEF7ED 0%, 
             #FED7AA 25%, 
