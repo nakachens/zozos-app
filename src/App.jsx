@@ -2374,7 +2374,7 @@ function DesktopIcon({ app, onDoubleClick }) {
         className="w-9 h-9 mb-2 filter drop-shadow-sm object-contain"
         style={{ imageRendering: 'pixelated' }}
       />
-      <span className="text-white-900 text-xs text-center font-medium" style={{ fontFamily: 'serif' }}>
+      <span className="text-teal-50 text-xs text-center font-medium" style={{ fontFamily: 'serif' }}>
         {app.name}
       </span>
     </div>
@@ -2461,7 +2461,7 @@ function StartMenu({ apps, isOpen, onOpenApp, onClose }) {
         ))}
         
         {/* separator */}
-        <div className="border-t-2 my-2 mx-3" style={{ borderColor: '#8b4513' }}></div>
+        <div className="border-t-2 my-2 mx-3" style={{ borderColor: '#075274ff' }}></div>
         
         {/* system options */}
         <div className="p-3 text-xs text-amber-700 mx-3"
@@ -2575,7 +2575,7 @@ function Taskbar({ openWindows, onToggleWindow, onOpenStartMenu, isStartMenuOpen
       <div className="absolute bottom-0 left-0 right-0 h-12 border-t-4 flex items-center justify-between px-3 z-40 shadow-lg"
       style={{
        background: 'linear-gradient(180deg, #deb887 0%, #cd853f 50%, #a0522d 100%)',
-       borderColor: '#f5deb3 #8b4513 #8b4513 #f5deb3',
+       borderColor: '#f5deb3 #3f87a1ff #3f87a1ff #f5deb3',
        borderStyle: 'solid',
        fontFamily: 'monospace',
        paddingLeft: '12px'
@@ -2591,28 +2591,28 @@ function Taskbar({ openWindows, onToggleWindow, onOpenStartMenu, isStartMenuOpen
         style={{ 
           fontFamily: 'monospace',
           background: isStartMenuOpen 
-          ? 'linear-gradient(145deg, #a0522d, #8b4513)'
+          ? 'linear-gradient(145deg, #3f87a1ff #3f87a1ff)'
           : 'linear-gradient(145deg, #f5deb3, #deb887)',
           borderColor: isStartMenuOpen
-          ? '#8b4513 #f5deb3 #f5deb3 #8b4513'
-          : '#f5deb3 #8b4513 #8b4513 #f5deb3',
-          color: isStartMenuOpen ? '#f5deb3' : '#8b4513'
+          ? ' #3f87a1ff #f5deb3 #f5deb3 #3f87a1ff'
+          : '#f5deb3  #3f87a1ff  #3f87a1ff #f5deb3',
+          color: isStartMenuOpen ? '#f5deb3' : ' #3f87a1ff'
         }}
         onMouseDown={(e) => {
-          e.target.style.borderColor = '#8b4513 #f5deb3 #f5deb3 #8b4513';
+          e.target.style.borderColor = ' #3f87a1ff #f5deb3 #f5deb3  #3f87a1ff';
         }}
         onMouseUp={(e) => {
           e.target.style.borderColor = isStartMenuOpen 
-          ? '#8b4513 #f5deb3 #f5deb3 #8b4513'
-          : '#f5deb3 #8b4513 #8b4513 #f5deb3';
+          ? ' #3f87a1ff #f5deb3 #f5deb3  #3f87a1ff'
+          : '#f5deb3  #3f87a1ff  #3f87a1ff #f5deb3';
         }}
         onMouseLeave={(e) => {
           e.target.style.borderColor = isStartMenuOpen 
-          ? '#8b4513 #f5deb3 #f5deb3 #8b4513'
-          : '#f5deb3 #8b4513 #8b4513 #f5deb3';
+          ? ' #3f87a1ff #f5deb3 #f5deb3  #3f87a1ff'
+          : '#f5deb3  #3f87a1ff #3f87a1ff #f5deb3';
           }}
           >
-        <span className="text-base">🍂</span>
+        <span className="text-base">⋆˚꩜｡</span>
         <span>Menu</span>
         </button>
 
