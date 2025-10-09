@@ -2302,7 +2302,7 @@ function Desktop({ apps, onOpenApp }) {
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         background: `
-          url('./assets/desktop12.jpg') center/cover no-repeat,
+          url('./assets/kohaku.jpg') center/cover no-repeat,
           linear-gradient(135deg, 
             #FEF7ED 0%, 
             #FED7AA 25%, 
