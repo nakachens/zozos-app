@@ -386,7 +386,7 @@ function TaskListWidget() {
            borderStyle: 'solid',
            width: '200px',
            height: '150px',
-           background: '#7abfd8ff'
+           background: '#A9C49C'
          }}>
       <div className="flex items-center mb-2 pb-1 border-b-2"
            style={{ borderColor: 'rgba(139, 69, 19, 0.3)' }}>
@@ -488,10 +488,10 @@ function FocusGoalsWidget() {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'text-teal-100';
-      case 'medium': return 'text-lime-50';
-      case 'low': return 'text-cyan-100';
-      default: return 'text-cyan-100';
+      case 'high': return 'text-blue-900';
+      case 'medium': return 'text-black-600';
+      case 'low': return 'text-green-600';
+      default: return 'text-amber-600';
     }
   };
 
@@ -519,11 +519,11 @@ function FocusGoalsWidget() {
            borderStyle: 'solid',
            width: '240px',
            height: '180px',
-           background: '#015380ff'
+           background: '#D0B0CF'
          }}>
       <div className="flex items-center mb-2 pb-1 border-b-2"
            style={{ borderColor: 'rgba(139, 69, 19, 0.3)' }}>
-        <span className="text-sky-200 font-bold text-xs">PROGRESS</span>
+        <span className="text-amber-900 font-bold text-xs">PROGRESS</span>
       </div>
 
       <div className="space-y-2 max-h-25 overflow-y-auto mb-3">
@@ -552,7 +552,7 @@ function FocusGoalsWidget() {
                   className="h-full transition-all duration-300"
                   style={{ 
                     width: `${goal.progress}%`,
-                    backgroundColor: '#f5deb3'
+                    backgroundColor: '#8b4513'
                   }}
                 />
               </div>
@@ -560,7 +560,7 @@ function FocusGoalsWidget() {
                 className="widget-button w-4 h-4 text-xs border hover:opacity-90"
                 onClick={() => updateProgress(goal.id, 10)}
                 style={{ 
-                  borderColor: '#f5deb3 #51819bff #51819bff #f5deb3', 
+                  borderColor: '#f5deb3 #8b4513 #8b4513 #f5deb3', 
                   fontSize: '8px',
                   backgroundColor: 'rgba(255, 255, 255, 0.8)'
                 }}
@@ -2297,12 +2297,12 @@ function Desktop({ apps, onOpenApp }) {
     <div 
       className="h-full w-full relative overflow-hidden"
       style={{
-        backgroundImage: `url('./assets/wallpaper.jpg')`,
+        backgroundImage: `url('./assets/kohaku.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
         background: `
-          url('./assets/wallpaper.jpg') center/cover no-repeat,
+          url('./assets/desktop12.jpg') center/cover no-repeat,
           linear-gradient(135deg, 
             #FEF7ED 0%, 
             #FED7AA 25%, 
@@ -2374,7 +2374,7 @@ function DesktopIcon({ app, onDoubleClick }) {
         className="w-9 h-9 mb-2 filter drop-shadow-sm object-contain"
         style={{ imageRendering: 'pixelated' }}
       />
-      <span className="text-teal-50 text-xs text-center font-medium" style={{ fontFamily: 'serif' }}>
+      <span className="text-amber-900 text-xs text-center font-medium" style={{ fontFamily: 'serif' }}>
         {app.name}
       </span>
     </div>
@@ -2402,13 +2402,13 @@ function StartMenu({ apps, isOpen, onOpenApp, onClose }) {
     <div className="absolute bottom-12 left-3 w-80 border-4 shadow-2xl z-50 overflow-hidden"
          style={{
            background: 'linear-gradient(145deg, #f5deb3, #deb887)',
-           borderColor: '#f5deb3 #3f87a1ff #3f87a1ff #f5deb3',
+           borderColor: '#f5deb3 #8b4513 #8b4513 #f5deb3',
            borderStyle: 'solid',
            fontFamily: 'monospace'
          }}>
       <div className="text-amber-900 p-4 text-sm font-bold flex items-center border-b-2"
            style={{ 
-             background: 'linear-gradient(90deg, #3f87a1ff 0%, #225568ff 50%, #006360ff 100%)',
+             background: 'linear-gradient(90deg, #daa520 0%, #b8860b 50%, #cd853f 100%)',
              borderColor: '#8b4513'
            }}>
         <span className="text-lg mr-3">🍂</span>
@@ -2461,7 +2461,7 @@ function StartMenu({ apps, isOpen, onOpenApp, onClose }) {
         ))}
         
         {/* separator */}
-        <div className="border-t-2 my-2 mx-3" style={{ borderColor: '#075274ff' }}></div>
+        <div className="border-t-2 my-2 mx-3" style={{ borderColor: '#8b4513' }}></div>
         
         {/* system options */}
         <div className="p-3 text-xs text-amber-700 mx-3"
@@ -2574,8 +2574,8 @@ function Taskbar({ openWindows, onToggleWindow, onOpenStartMenu, isStartMenuOpen
     <>
       <div className="absolute bottom-0 left-0 right-0 h-12 border-t-4 flex items-center justify-between px-3 z-40 shadow-lg"
       style={{
-       background: 'linear-gradient(180deg, #3f87a1ff 0%, #3f87a1ff 50%, #005384ff 100%)',
-       borderColor: '#7abfd8ff #3f87a1ff #3f87a1ff #7abfd8ff',
+       background: 'linear-gradient(180deg, #deb887 0%, #cd853f 50%, #a0522d 100%)',
+       borderColor: '#f5deb3 #8b4513 #8b4513 #f5deb3',
        borderStyle: 'solid',
        fontFamily: 'monospace',
        paddingLeft: '12px'
@@ -2591,28 +2591,28 @@ function Taskbar({ openWindows, onToggleWindow, onOpenStartMenu, isStartMenuOpen
         style={{ 
           fontFamily: 'monospace',
           background: isStartMenuOpen 
-          ? 'linear-gradient(145deg, #3f87a1ff #3f87a1ff)'
+          ? 'linear-gradient(145deg, #a0522d, #8b4513)'
           : 'linear-gradient(145deg, #f5deb3, #deb887)',
           borderColor: isStartMenuOpen
-          ? ' #3f87a1ff #f5deb3 #f5deb3 #3f87a1ff'
-          : '#f5deb3  #3f87a1ff  #3f87a1ff #f5deb3',
-          color: isStartMenuOpen ? '#f5deb3' : ' #3f87a1ff'
+          ? '#8b4513 #f5deb3 #f5deb3 #8b4513'
+          : '#f5deb3 #8b4513 #8b4513 #f5deb3',
+          color: isStartMenuOpen ? '#f5deb3' : '#8b4513'
         }}
         onMouseDown={(e) => {
-          e.target.style.borderColor = ' #3f87a1ff #f5deb3 #f5deb3  #3f87a1ff';
+          e.target.style.borderColor = '#8b4513 #f5deb3 #f5deb3 #8b4513';
         }}
         onMouseUp={(e) => {
           e.target.style.borderColor = isStartMenuOpen 
-          ? ' #3f87a1ff #f5deb3 #f5deb3  #3f87a1ff'
-          : '#f5deb3  #3f87a1ff  #3f87a1ff #f5deb3';
+          ? '#8b4513 #f5deb3 #f5deb3 #8b4513'
+          : '#f5deb3 #8b4513 #8b4513 #f5deb3';
         }}
         onMouseLeave={(e) => {
           e.target.style.borderColor = isStartMenuOpen 
-          ? ' #3f87a1ff #f5deb3 #f5deb3  #3f87a1ff'
-          : '#f5deb3  #3f87a1ff #3f87a1ff #f5deb3';
+          ? '#8b4513 #f5deb3 #f5deb3 #8b4513'
+          : '#f5deb3 #8b4513 #8b4513 #f5deb3';
           }}
           >
-        <span className="text-base">⋆˚꩜｡</span>
+        <span className="text-base">🍂</span>
         <span>Menu</span>
         </button>
 
